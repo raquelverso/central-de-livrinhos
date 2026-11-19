@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Livrinhos ⚔️</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Canvas de confete (não bloqueia cliques) -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Barra superior estilo HUD de RPG cozy -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">🏡</span>
+        <div>
+          <h1 class="brand-title">Central de Livrinhos</h1>
+          <p class="brand-sub" id="saudacao-rpg">Os gatos já escolheram a cadeira deles.</p>
+        </div>
+      </div>
+
+      <div class="privacy-pill" title="Tudo fica guardado apenas no navegador deste computador.">
+        🔒 100% no seu computador • Sem IA • Nenhum texto do livro sai daqui
+      </div>
+
+      <div class="topbar-actions">
+        <span class="xp-badge" id="topbar-xp" title="Nível e XP acumulados">🛡️ Nv 1 (Aprendiz de Escriba) • 0 XP</span>
+        <button type="button" class="btn btn-secondary btn-sound-toggle" id="btn-som" aria-pressed="true" title="Silenciar ou ativar sons do jogo">
+          🔊 Som
+        </button>
+        <button type="button" class="btn btn-secondary" id="btn-abrir-popup" title="Abrir a janelinha compacta ao lado do seu texto">
+          ↗ Janelinha
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="container" id="main-container">
+    <!-- JANELINHA COMPACTA (?mini=1): só personagem, relógio com tomatinhos e palavras + barra -->
+    <section class="window-card janelinha-compacta" id="janelinha-compacta" hidden aria-label="Janelinha da Mesa">
+      <div class="janelinha-npc-row">
+        <div class="janelinha-npc-avatar" id="mini-mascote-svg" role="button" tabindex="0" title="Clique para ouvir outra fala"></div>
+        <div class="janelinha-npc-texto">
+          <div class="janelinha-npc-nome" id="mini-mascote-nome">O Moreno Sarcástico</div>
+          <p class="janelinha-npc-fala" id="mini-mascote-fala"></p>
+        </div>
+      </div>
+
+      <div class="janelinha-pomo-row">
+        <div class="janelinha-pomo-top">
+          <span class="janelinha-pomo-modo" id="mini-pomo-modo-badge">🍅 Foco</span>
+          <span class="janelinha-pomo-timer" id="mini-pomo-display">25:00</span>
+          <div class="janelinha-pomo-btns">
+            <button type="button" class="btn btn-primary btn-small" id="mini-pomo-toggle" title="Começar ou pausar">▶</button>
+            <button type="button" class="btn btn-secondary btn-small" id="mini-pomo-reset" title="Reiniciar relógio">↺</button>
+            <button type="button" class="btn btn-secondary btn-small" id="mini-ambiente-toggle" aria-pressed="false" title="Tocar ou parar som ambiente">🎧</button>
+          </div>
+        </div>
+        <div class="janelinha-pular-row" id="mini-pomo-pular-row" hidden>
+          <button type="button" class="btn btn-secondary btn-tiny" id="mini-pomo-pular">Pular pausa ⏭</button>
+        </div>
+        <div class="janelinha-quest-row">
+          <span class="janelinha-quest-titulo" id="mini-quest-titulo">Quest em foco</span>
+          <div class="janelinha-tomatinhos" id="mini-quest-tomatinhos"></div>
+        </div>
+      </div>
+
+      <div class="janelinha-palavras-row">
+        <div class="janelinha-palavras-top">
+          <div>
+            <span class="janelinha-palavras-num" id="mini-palavras-hoje">0</span>
+            <span class="janelinha-palavras-rotulo" id="mini-palavras-rotulo">palavras hoje</span>
+          </div>
+          <span class="janelinha-meta-pct" id="mini-progresso-texto">0 / 1.000</span>
+        </div>
+        <div class="progress-track janelinha-track">
+          <div class="progress-fill" id="mini-barra-fill"></div>
+          <div class="progress-min-marker" id="mini-marcador-minima" title="Meta mínima"></div>
+        </div>
+        <div class="janelinha-misto-rev" id="mini-misto-revisao" hidden>🔍 0 / 45 min revisão</div>
+      </div>
+
+      <div class="salto-aviso-box salto-aviso-mini" id="mini-aviso-salto" hidden role="status" aria-live="polite">
+        <p class="salto-aviso-texto" id="mini-aviso-salto-texto"></p>
+        <div class="salto-aviso-acoes">
+          <button type="button" class="btn btn-primary btn-tiny" id="btn-mini-salto-escrevi">Escrevi! 🎉</button>
+          <button type="button" class="btn btn-secondary btn-tiny" id="btn-mini-salto-colei">Colei/recuperei</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="book-shell" id="book-shell">
+      <div class="book-frame">
+        <div class="book-pages">
+          <!-- ABA 1: MESA -->
+          <section class="book-panel" data-tab-panel="mesa" aria-label="Mesa de escrita">
+            <!-- Quest 0: Tutorial interativo guiado pelo Moreno Sarcástico -->
+            <section class="window-card quest-zero-card" id="quest-zero-card" hidden aria-label="Quest 0: chegar na fazenda">
+              <div class="window-titlebar">
+                <div class="titlebar-left">
+                  <span class="titlebar-icon">🧭</span>
+                  <span>Quest 0: chegar na fazenda</span>
+                </div>
+                <span class="q0-passo-badge" id="q0-passo-badge">Passo 1 de 4</span>
+              </div>
+              <div class="window-body q0-body">
+                <div class="q0-npc-col">
+                  <div class="q0-npc-frame" id="q0-npc-svg"></div>
+                  <span class="q0-npc-tag" id="q0-npc-tag">O Moreno Sarcástico</span>
+                </div>
+                <div class="q0-content-col">
+                  <h2 class="q0-titulo" id="q0-titulo">Bem-vinda à Fazenda de Livrinhos</h2>
+                  <p class="q0-texto" id="q0-texto"></p>
+                  <div class="q0-actions">
+                    <button type="button" class="btn btn-secondary btn-small" id="btn-q0-prev">← Anterior</button>
+                    <button type="button" class="btn btn-primary btn-small" id="btn-q0-next">Próximo passo →</button>
+                    <button type="button" class="btn btn-link btn-small" id="btn-q0-pular">Já conheço a fazenda, pular</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="book-spread book-spread-mesa">
+              <div class="book-col">
+                <!-- A MESA DE ESCRITA -->
+                <section class="window-card mesa-card" aria-labelledby="titulo-mesa">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🪵</span>
+                      <h2 id="titulo-mesa">A Mesa de Escrita</h2>
+                    </div>
+                    <div class="titlebar-dots" aria-hidden="true">
+                      <span>❖</span><span>✦</span><span>❖</span>
+                    </div>
+                  </div>
+
+                  <div class="window-body">
+                    <div class="mesa-top-controls">
+                      <div class="livro-ativo-box">
+                        <label for="select-livro-mesa" class="label-cute">Projeto aberto na mesa:</label>
+                        <div class="select-with-color">
+                          <span class="color-dot" id="mesa-livro-cor"></span>
+                          <select id="select-livro-mesa" class="input-cute"></select>
+                        </div>
+                      </div>
+
+                      <div class="modo-dia-toggle" role="group" aria-label="Modo do dia">
+                        <button type="button" class="mode-tab is-active" id="btn-modo-escrita" data-mode="escrita">
+                          ✍️ Dia de Escrita
+                        </button>
+                        <button type="button" class="mode-tab" id="btn-modo-misto" data-mode="misto">
+                          ⚡ Dia Misto
+                        </button>
+                        <button type="button" class="mode-tab" id="btn-modo-revisao" data-mode="revisao">
+                          🔍 Dia de Revisão
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Barra do Contador Automático Local (Fase 3) -->
+                    <div class="contador-auto-bar" id="contador-auto-bar">
+                      <div class="contador-auto-status-row">
+                        <span class="contador-auto-dot is-offline" id="contador-auto-dot" aria-hidden="true"></span>
+                        <span class="contador-auto-status" id="contador-auto-status">
+                          Contador automático desligado (instale uma vez no Windows ou abra no Mac)
+                        </span>
+                        <button type="button" class="btn btn-primary btn-small" id="btn-auto-marcar-doc-aberto" hidden>
+                          ➕ Marcar no livro atual
+                        </button>
+                        <button type="button" class="btn btn-link btn-small" id="btn-auto-ajuda">
+                          Como ligar?
+                        </button>
+                      </div>
+                      <div class="contador-auto-actions" id="contador-auto-actions" hidden>
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-auto-marcar-arquivos" title="Escolher quais arquivos e palavras-chave pertencem ao livro">
+                          📎 Arquivos deste livro
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-auto-pausar" title="Pausar ou retomar a leitura automática">
+                          ⏸️ Pausar
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-auto-ler-agora" title="Ler contagem agora">
+                          🔄 Agora
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-small" id="btn-auto-escolher-arquivo" title="Opção extra: escolher um arquivo avulso fora do Word ou Pages">
+                          📂 Escolher arquivo (extra)
+                        </button>
+                      </div>
+                      <div class="contador-auto-ajuda-box" id="contador-auto-ajuda-box" hidden>
+                        No <strong>Windows</strong>, abra a pasta <strong>Central de Livrinhos</strong> uma única vez e dê dois cliques em <strong>Instalar Central de Livrinhos (Windows).bat</strong> (ele fica quietinho perto do relógio e liga com o PC). No <strong>Mac</strong>, dê dois cliques em <strong>Central de Livrinhos.app</strong> (sem Terminal e sem Python, direto perto do relógio lá em cima!). Ele olha <strong>só o nome</strong> do arquivo aberto no Pages/Word e só conta os documentos marcados na Estante!
+                      </div>
+                      <div class="salto-aviso-box" id="aviso-salto-pendente" hidden role="status" aria-live="polite">
+                        <p class="salto-aviso-texto" id="aviso-salto-texto"></p>
+                        <div class="salto-aviso-acoes">
+                          <button type="button" class="btn btn-primary btn-small" id="btn-salto-escrevi">Escrevi! 🎉</button>
+                          <button type="button" class="btn btn-secondary btn-small" id="btn-salto-colei">Colei/recuperei</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Painel: DIA DE ESCRITA -->
+                    <div id="painel-escrita" class="mesa-painel">
+                      <div class="big-counter-box">
+                        <div class="big-number-row">
+                          <span class="big-number" id="num-palavras-hoje">0</span>
+                          <span class="big-unit">palavras escritas hoje</span>
+                        </div>
+                        <p class="saldo-sub" id="texto-saldo-hoje">
+                          Saldo líquido de hoje: +0 palavras (total do livro: 0)
+                        </p>
+                        <p class="dica-suave">
+                          Digitou, contou, mesmo se você cortar metade do capítulo na revisão.
+                        </p>
+                        <div class="corrigir-hoje-row">
+                          <button type="button" class="btn-link-discreto" id="btn-abrir-corrigir-hoje">
+                            ✏️ corrigir palavras de hoje
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Barra de progresso dupla -->
+                      <div class="progress-section">
+                        <div class="progress-labels">
+                          <span id="label-progresso-escrita">0 / 1.000 palavras</span>
+                          <span class="badge-minima" id="badge-minima-escrita">🌱 Mínima (dia ruim): 200</span>
+                        </div>
+                <div class="progress-track" aria-label="Progresso da meta diária de escrita">
+                  <div class="progress-fill" id="barra-escrita" style="width: 0%"></div>
+                  <div class="progress-marker" id="marcador-minima-escrita" title="Meta mínima pra dia ruim">
+                    <span class="marker-icon">🌿</span>
+                  </div>
+                </div>
+                <div class="metas-inline">
+                  <label class="meta-edit-item">
+                    Meta do dia:
+                    <input type="number" id="input-meta-palavras" min="1" step="50" class="input-tiny">
+                  </label>
+                  <label class="meta-edit-item">
+                    Meta mínima (dia ruim):
+                    <input type="number" id="input-meta-minima-palavras" min="1" step="25" class="input-tiny">
+                  </label>
+                </div>
+              </div>
+
+              <!-- Jeito principal à mostra: Somar o que escrevi agora -->
+              <div class="update-tabs-wrapper" id="update-tabs-escrita">
+                <div class="somar-principal-box">
+                  <h3 class="subpanel-heading">➕ Somar o que escrevi agora</h3>
+                  <div class="quick-buttons">
+                    <button type="button" class="btn btn-chip" data-add-words="50">+50</button>
+                    <button type="button" class="btn btn-chip" data-add-words="100">+100</button>
+                    <button type="button" class="btn btn-chip" data-add-words="250">+250</button>
+                    <button type="button" class="btn btn-chip" data-add-words="500">+500</button>
+                  </div>
+                  <form id="form-somar-palavras" class="inline-form">
+                    <input type="number" id="input-somar-palavras" class="input-cute" min="1" placeholder="Quantas palavras? (ex: 180)">
+                    <button type="submit" class="btn btn-primary">Somar palavras</button>
+                  </form>
+                </div>
+
+                <!-- Outros jeitos de contar (fechado por padrão) -->
+                <details class="outros-jeitos-details" id="details-outros-jeitos">
+                  <summary>Outras formas de contar</summary>
+                  <div class="outros-jeitos-content">
+                    <div class="outro-jeito-card">
+                      <strong>📄 Atualizar total do arquivo</strong>
+                      <p class="helper-text">
+                        Para quando você olha o total de palavras lá no Word, Pages ou Docs e quer que a Mesa calcule sozinha quantas palavras novas entraram.
+                      </p>
+                      <form id="form-total-arquivo" class="stack-form">
+                        <div class="inline-form">
+                          <input type="number" id="input-total-arquivo" class="input-cute" min="0" placeholder="Total atual do arquivo (ex: 15420)">
+                          <button type="submit" class="btn btn-primary btn-small">Atualizar e contar diferença</button>
+                        </div>
+                        <button type="button" class="btn btn-ghost btn-small" id="btn-ajustar-partida">
+                          Só ajustar ponto de partida (sem contar pro dia de hoje)
+                        </button>
+                      </form>
+                    </div>
+
+                    <div class="outro-jeito-card">
+                      <strong>📋 Colar texto só pra contar</strong>
+                      <p class="helper-text">
+                        Para quando o seu editor não mostra a contagem: cole o trecho aqui, eu conto na hora e apago o texto imediatamente (nada é salvo).
+                      </p>
+                      <textarea id="textarea-colar" class="textarea-cute" rows="3" placeholder="Cole o trecho aqui só para contar as palavras..."></textarea>
+                      <div class="paste-footer">
+                        <span class="paste-count" id="texto-contagem-colada">Texto colado tem 0 palavras (nenhum texto é salvo!)</span>
+                        <div class="paste-buttons">
+                          <button type="button" class="btn btn-primary btn-small" id="btn-colar-somar">Somar essas palavras ao dia</button>
+                          <button type="button" class="btn btn-secondary btn-small" id="btn-colar-total">Usar como novo total do livro</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </details>
+
+                <!-- Revisão embutida no Dia Misto (pequeno, embaixo) -->
+                <div class="misto-revisao-box" id="misto-revisao-box" hidden>
+                  <div class="misto-revisao-top">
+                    <div class="misto-revisao-info">
+                      <strong class="misto-revisao-titulo">🔍 Revisão de hoje:</strong>
+                      <span class="misto-revisao-num" id="num-minutos-revisao-misto">0 min</span>
+                      <span class="misto-revisao-meta" id="label-progresso-revisao-misto">(meta: 45 min)</span>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-small" id="btn-relogio-revisao-misto" aria-pressed="false">
+                      ⏱️ Reloginho de revisão
+                    </button>
+                  </div>
+                  <div class="misto-revisao-acoes">
+                    <div class="quick-buttons">
+                      <button type="button" class="btn btn-chip btn-tiny" data-add-min="1">+1 min</button>
+                      <button type="button" class="btn btn-chip btn-tiny" data-add-min="5">+5 min</button>
+                      <button type="button" class="btn btn-chip btn-tiny" data-add-min="15">+15 min</button>
+                    </div>
+                    <span class="revisao-timer-status" id="status-relogio-revisao-misto"></span>
+                  </div>
+                </div>
+
+                <div class="mesa-feedback" id="mesa-feedback" role="status" aria-live="polite" hidden></div>
+              </div>
+            </div>
+
+            <!-- Painel: DIA DE REVISÃO -->
+            <div id="painel-revisao" class="mesa-painel" hidden>
+              <div class="big-counter-box">
+                <div class="big-number-row">
+                  <span class="big-number" id="num-minutos-revisao">0</span>
+                  <span class="big-unit">minutos revisados hoje</span>
+                </div>
+                <p class="saldo-sub" id="texto-saldo-revisao">
+                  Hoje o placar mede tempo de cirurgia no texto (não palavras!).
+                </p>
+                <p class="dica-suave">
+                  Cada minuto em que o texto muda ou que você marca abaixo soma na conta.
+                </p>
+              </div>
+
+              <div class="progress-section">
+                <div class="progress-labels">
+                  <span id="label-progresso-revisao">0 / 45 minutos</span>
+                  <span class="badge-minima" id="badge-minima-revisao">🌱 Mínima (dia ruim): 15 min</span>
+                </div>
+                <div class="progress-track" aria-label="Progresso da meta diária de revisão">
+                  <div class="progress-fill is-revisao" id="barra-revisao" style="width: 0%"></div>
+                  <div class="progress-marker" id="marcador-minima-revisao" title="Meta mínima de revisão pra dia ruim">
+                    <span class="marker-icon">🌿</span>
+                  </div>
+                </div>
+                <div class="metas-inline">
+                  <label class="meta-edit-item">
+                    Meta do dia (min):
+                    <input type="number" id="input-meta-revisao" min="1" step="5" class="input-tiny">
+                  </label>
+                  <label class="meta-edit-item">
+                    Meta mínima (min):
+                    <input type="number" id="input-meta-minima-revisao" min="1" step="5" class="input-tiny">
+                  </label>
+                </div>
+              </div>
+
+              <div class="revisao-controles">
+                <div class="quick-buttons">
+                  <button type="button" class="btn btn-chip" data-add-min="1">+1 min</button>
+                  <button type="button" class="btn btn-chip" data-add-min="5">+5 min</button>
+                  <button type="button" class="btn btn-chip" data-add-min="15">+15 min</button>
+                </div>
+                <button type="button" class="btn btn-primary" id="btn-relogio-revisao" aria-pressed="false">
+                  ⏱️ Ligar reloginho de revisão ativa
+                </button>
+                <span class="revisao-timer-status" id="status-relogio-revisao"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="book-col">
+        <!-- POMODORO & NPC MASCOTE -->
+        <section class="window-card pomodoro-card" aria-labelledby="titulo-pomodoro">
+          <div class="window-titlebar">
+            <div class="titlebar-left">
+              <span class="titlebar-icon">🍅</span>
+              <h2 id="titulo-pomodoro">Relógio da Fazenda</h2>
+            </div>
+            <div class="titlebar-dots" aria-hidden="true">
+              <span>❖</span><span>✦</span><span>❖</span>
+            </div>
+          </div>
+
+          <div class="window-body pomodoro-body">
+            <div class="pomo-top-row">
+              <div class="pomo-modes">
+                <button type="button" class="pomo-mode-btn is-active" id="btn-pomo-foco">🍅 Foco</button>
+                <button type="button" class="pomo-mode-btn" id="btn-pomo-pausa">☕ Pausa</button>
+              </div>
+              <span class="pomo-count-badge" id="pomo-hoje-badge">0 pomodoros hoje</span>
+            </div>
+
+            <div class="pomo-display-row">
+              <div class="pomo-timer" id="pomo-display">25:00</div>
+              <div class="mascote-inline" id="mascote-box" role="button" tabindex="0" title="Clique no acompanhante pra ouvir um comentário!">
+                <div class="mascote-bubble" id="mascote-fala">Cheguei cedo, trouxe café e já briguei com a Dona Procrastinação na porteira.</div>
+                <div class="mascote-svg-wrap" id="mascote-svg"></div>
+                <span class="mascote-name" id="mascote-nome">O Moreno Sarcástico</span>
+              </div>
+            </div>
+
+            <div class="npc-selector-row">
+              <label for="select-npc-ativo" class="label-cute">Personagem na mesa:</label>
+              <select id="select-npc-ativo" class="input-cute input-npc-select" title="Trocar quem acompanha sua escrita"></select>
+            </div>
+
+            <div class="pomo-controls">
+              <button type="button" class="btn btn-primary" id="btn-pomo-toggle">▶ Começar</button>
+              <button type="button" class="btn btn-secondary" id="btn-pomo-reset">↺ Recomeçar</button>
+              <button type="button" class="btn btn-secondary" id="btn-pomo-brincar" hidden>Brincar na pausa 🎮</button>
+              <button type="button" class="btn btn-secondary" id="btn-pomo-pular" hidden>Pular pausa ⏭</button>
+              <span class="pomo-pronto-badge" id="pomo-pronto-badge" hidden>🍅 Pronto pro foco</span>
+            </div>
+
+            <div class="ambiente-player-row" aria-label="Player de som ambiente">
+              <span class="ambiente-rotulo">🎧 Som ambiente:</span>
+              <select id="select-som-ambiente" class="input-cute input-ambiente-select" aria-label="Escolher som ambiente">
+                <option value="chuva">🌧️ Chuva</option>
+                <option value="lareira">🔥 Lareira (estalinhos)</option>
+                <option value="marrom">🟤 Ruído marrom</option>
+                <option value="branco">⚪ Ruído branco</option>
+              </select>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-ambiente-toggle" aria-pressed="false">
+                ▶ Tocar
+              </button>
+              <div class="ambiente-vol-wrap">
+                <input type="range" id="input-volume-ambiente" class="volume-slider ambiente-slider" min="0" max="100" step="5" value="45" title="Volume do som ambiente (separado das comemorações)" aria-label="Volume do som ambiente">
+                <span class="ambiente-vol-pct" id="label-volume-ambiente">45%</span>
+              </div>
+            </div>
+
+            <details class="pomo-settings">
+              <summary>Ajustar relógio &amp; dar nome ao personagem (padrão 25 / 5)</summary>
+              <div class="metas-inline">
+                <label class="meta-edit-item">
+                  Foco (min):
+                  <input type="number" id="input-pomo-foco-min" min="1" max="120" class="input-tiny">
+                </label>
+                <label class="meta-edit-item">
+                  Pausa (min):
+                  <input type="number" id="input-pomo-pausa-min" min="1" max="60" class="input-tiny">
+                </label>
+                <label class="meta-edit-item">
+                  Dar nome (opcional):
+                  <input type="text" id="input-nome-mascote" maxlength="20" placeholder="Só o arquétipo" class="input-tiny input-name">
+                </label>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- PAINEL: QUEST EM FOCO (TOMATINHOS VERDES -> VERMELHOS) -->
+        <section class="window-card quest-foco-card" aria-labelledby="titulo-quest-foco">
+          <div class="window-titlebar">
+            <div class="titlebar-left">
+              <span class="titlebar-icon">⚔️</span>
+              <h2 id="titulo-quest-foco">Quest em Foco</h2>
+            </div>
+            <div class="titlebar-dots" aria-hidden="true">
+              <span>❖</span><span>✦</span><span>❖</span>
+            </div>
+          </div>
+
+          <div class="window-body quest-foco-body">
+            <div class="quest-select-row">
+              <select id="select-quest-foco" class="input-cute" aria-label="Escolher quest em foco"></select>
+              <button type="button" class="btn btn-secondary btn-small" id="btn-toggle-nova-quest">
+                + Nova Quest
+              </button>
+            </div>
+
+            <form id="form-nova-quest" class="nova-quest-form" hidden>
+              <input type="text" id="input-nova-quest-titulo" class="input-cute" required placeholder="Ex: Escrever cena da briga sem voltar pra editar">
+              <div class="inline-form">
+                <select id="select-nova-quest-tamanho" class="input-cute" aria-label="Tamanho da quest">
+                  <option value="P">P • 1 pomodoro (+10 XP)</option>
+                  <option value="M" selected>M • 2 pomodoros (+25 XP)</option>
+                  <option value="G">G • 3 pomodoros (+50 XP)</option>
+                  <option value="GG">G+ • 4 pomodoros (+50 XP)</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-small">Criar Quest</button>
+              </div>
+            </form>
+
+            <div class="quest-active-box">
+              <div class="quest-active-header">
+                <strong class="quest-active-title" id="quest-foco-titulo">Escrever cena nova sem voltar pra editar</strong>
+                <span class="quest-xp-tag" id="quest-foco-xp">+25 XP</span>
+              </div>
+
+              <div class="tomatinhos-area">
+                <div class="tomatinhos-row" id="quest-tomatinhos" aria-label="Tomatinhos da quest"></div>
+                <span class="quest-progresso-texto" id="quest-progresso-texto">0 de 2 pomodoros</span>
+              </div>
+
+              <div class="quest-actions-row">
+                <button type="button" class="btn btn-gold btn-small" id="btn-acender-tomatinho" title="Amadurecer 1 tomatinho manualmente">
+                  🍅 Acender 1 tomatinho
+                </button>
+                <button type="button" class="btn btn-secondary btn-small" id="btn-acabou-sessao" title="Fechar a sessão antes, sem culpa">
+                  🌙 Acabou a sessão
+                </button>
+              </div>
+            </div>
+
+            <div class="quest-feedback" id="quest-feedback" role="status" aria-live="polite" hidden></div>
+          </div>
+        </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 2: QUESTS E MISSÕES -->
+          <section class="book-panel" data-tab-panel="quests" hidden aria-label="Quests e missões">
+            <div class="book-spread book-spread-balanced">
+              <div class="book-col">
+                <section class="window-card missoes-form-card" id="missoes-card" aria-labelledby="titulo-missoes">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">⚔️</span>
+                      <h2 id="titulo-missoes">Nova Quest ou Missão</h2>
+                    </div>
+                  </div>
+                  <div class="window-body">
+                    <form id="form-missao-completa" class="missao-form-box missao-form-vertical">
+                      <label class="field-group">
+                        <span>O que você quer fazer?</span>
+                        <input type="text" id="missao-titulo" class="input-cute" required placeholder="Ex: Escrever o reencontro do capítulo 4">
+                      </label>
+
+                      <div class="missao-row-tamanhos">
+                        <label class="field-group">
+                          <span>Tamanho</span>
+                          <select id="missao-tamanho" class="input-cute">
+                            <option value="P">P • 1 pomodoro (+10 XP)</option>
+                            <option value="M" selected>M • 2 pomodoros (+25 XP)</option>
+                            <option value="G">G • Quest 3+ pomodoros (+50 XP)</option>
+                          </select>
+                        </label>
+
+                        <label class="field-group" id="missao-qtd-wrap" hidden>
+                          <span>Quantos 🍅?</span>
+                          <input type="number" id="missao-pomos-g" class="input-cute" min="3" max="10" value="3">
+                        </label>
+                      </div>
+
+                      <label class="field-group">
+                        <span>🌱 Versão menor (opcional, plano B pra dia difícil)</span>
+                        <input type="text" id="missao-versao-menor" class="input-cute" placeholder="Ex: Abrir o arquivo e escrever só 3 falas do diálogo">
+                      </label>
+
+                      <button type="submit" class="btn btn-primary">+ Criar Missão</button>
+                    </form>
+                    <p class="helper-text tab-side-tip">Dica: renomeie os passos dentro de cada card e clique em 🎯 Colocar em foco para acompanhar os tomatinhos lá na Mesa ou na Janelinha.</p>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card missoes-lista-card" aria-label="Mural de missões">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🗺️</span>
+                      <h2>Mural de Missões &amp; Quests</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="missoes-grid" id="grid-missoes"></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 3: DIÁRIO DE BORDO -->
+          <section class="book-panel" data-tab-panel="diario" hidden aria-label="Diário de bordo">
+            <div class="book-spread book-spread-balanced">
+              <div class="book-col">
+                <section class="window-card diario-card" aria-labelledby="titulo-diario">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">📖</span>
+                      <h2 id="titulo-diario">Registrar Parada</h2>
+                    </div>
+                  </div>
+                  <div class="window-body">
+                    <div class="diario-topo-row">
+                      <span class="diario-livro-badge" id="diario-livro-ativo-nome">📖 Meu Romance Novo</span>
+                      <label class="diario-filtro-label">
+                        <input type="checkbox" id="checkbox-diario-todos"> Ver histórico de todos os livros
+                      </label>
+                    </div>
+
+                    <form id="form-diario" class="diario-form">
+                      <input type="hidden" id="diario-edit-id" value="">
+                      <label for="diario-texto" class="label-cute">Uma linha por dia pra lembrar onde a história parou:</label>
+                      <div class="inline-form">
+                        <span class="diario-prefixo">Hoje eu…</span>
+                        <input type="text" id="diario-texto" class="input-cute" required placeholder="destravei a cena da chuva e cortei duas falas repetidas">
+                        <button type="submit" class="btn btn-primary btn-small" id="btn-salvar-diario">Guardar</button>
+                      </div>
+                      <button type="button" class="btn btn-ghost btn-small" id="btn-cancelar-edit-diario" hidden>Cancelar edição</button>
+                    </form>
+                    <p class="helper-text tab-side-tip">Anotar onde parou ajuda a retomar amanhã sem encarar a página em branco tentando lembrar o fio da cena.</p>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card diario-lista-card" aria-label="Páginas do diário">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🪶</span>
+                      <h2>Páginas do Diário</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="diario-lista" id="lista-diario"></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 4: PRAZOS -->
+          <section class="book-panel" data-tab-panel="prazos" hidden aria-label="Prazos">
+            <div class="book-spread book-spread-balanced">
+              <div class="book-col">
+                <section class="window-card prazos-card" aria-labelledby="titulo-prazos">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">📌</span>
+                      <h2 id="titulo-prazos">Pregar Novo Prazo</h2>
+                    </div>
+                  </div>
+                  <div class="window-body">
+                    <form id="form-novo-prazo" class="prazo-form">
+                      <input type="hidden" id="prazo-edit-id" value="">
+                      <div class="prazo-form-stack">
+                        <label class="field-group">
+                          <span>Livro</span>
+                          <select id="prazo-livro" class="input-cute" aria-label="Livro do prazo"></select>
+                        </label>
+                        <label class="field-group">
+                          <span>O que entregar?</span>
+                          <input type="text" id="prazo-titulo" class="input-cute" placeholder="Ex: 1º rascunho ou capítulos para revisão" required>
+                        </label>
+                        <label class="field-group">
+                          <span>Data</span>
+                          <input type="date" id="prazo-data" class="input-cute" required aria-label="Data do prazo">
+                        </label>
+                        <button type="submit" class="btn btn-primary" id="btn-salvar-prazo">+ Pregar no quadro</button>
+                      </div>
+                      <button type="button" class="btn btn-ghost btn-small" id="btn-cancelar-edit-prazo" hidden>Cancelar edição</button>
+                    </form>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card prazos-lista-card" aria-label="Quadro de prazos">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🗓️</span>
+                      <h2>Quadro de Avisos (Prazos)</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="prazos-lista" id="lista-prazos"></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 5: ESTANTE -->
+          <section class="book-panel" data-tab-panel="estante" hidden aria-label="Estante">
+            <div class="book-spread book-spread-balanced">
+              <div class="book-col">
+                <section class="window-card estante-guia-card" aria-labelledby="titulo-estante">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">📚</span>
+                      <h2 id="titulo-estante">Estante de Projetos</h2>
+                    </div>
+                  </div>
+                  <div class="window-body">
+                    <p class="helper-text">
+                      Cadastre seus livrinhos em andamento, escolha a cor da lombada e marque os nomes de arquivos ou palavras-chave que o contador automático pode ler no Pages ou Word.
+                    </p>
+                    <button type="button" class="btn btn-primary" id="btn-novo-livro">
+                      + Novo livro na estante
+                    </button>
+                    <div class="estante-privacidade-box">
+                      <strong>🔒 Como o contador automático escolhe o arquivo</strong>
+                      <p>Ele confere <strong>só o nome</strong> da janela aberta no Pages ou Word. Se não bater com nenhum arquivo marcado ou palavra-chave, ele ignora (💤) e nem abre o documento.</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card estante-card" aria-label="Livros cadastrados">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🗂️</span>
+                      <h2>Seus Livros na Estante</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="estante-grid" id="grid-estante"></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 6: TROFÉUS E MEDALHAS -->
+          <section class="book-panel" data-tab-panel="trofeus" hidden aria-label="Troféus e medalhas">
+            <div class="book-spread book-spread-even">
+              <div class="book-col">
+                <section class="window-card trofeus-card" id="trofeus-card" aria-labelledby="titulo-trofeus">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🏆</span>
+                      <h2 id="titulo-trofeus">Placar &amp; Medalhas</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="trofeus-bloco">
+                      <h3 class="bloco-titulo">📊 Placar da Guilda</h3>
+                      <div class="placar-grid" id="placar-guilda"></div>
+                    </div>
+                    <div class="trofeus-bloco">
+                      <h3 class="bloco-titulo">🎖️ Medalhas Automáticas</h3>
+                      <div class="medalhas-grid" id="grid-medalhas"></div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card marcos-desejos-card" aria-label="Marcos e desejos">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🚩</span>
+                      <h2>Marcos &amp; Lista de Desejos</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="trofeus-bloco-card">
+                      <div class="bloco-header-inline">
+                        <h3 class="bloco-titulo">🚩 Marcos do Livro</h3>
+                        <span class="badge-livro-marco" id="marco-livro-nome">Meu Romance Novo</span>
+                      </div>
+                      <form id="form-novo-marco" class="inline-form">
+                        <input type="text" id="input-novo-marco" class="input-cute" required placeholder="Novo marco (ex: Cena da declaração)">
+                        <button type="submit" class="btn btn-secondary btn-small">+ Adicionar</button>
+                      </form>
+                      <div class="marcos-lista" id="lista-marcos"></div>
+                    </div>
+
+                    <div class="trofeus-bloco-card">
+                      <h3 class="bloco-titulo">🎁 Lista de Desejos</h3>
+                      <p class="helper-text">Mimos reais pra você se dar quando fechar uma meta ou marco.</p>
+                      <form id="form-novo-desejo" class="inline-form">
+                        <input type="text" id="input-novo-desejo" class="input-cute" required placeholder="Ex: Bolo de cenoura depois do 1º ato">
+                        <button type="submit" class="btn btn-secondary btn-small">+ Anotar mimo</button>
+                      </form>
+                      <div class="desejos-lista" id="lista-desejos"></div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 7: PERSONAGENS -->
+          <section class="book-panel" data-tab-panel="personagens" hidden aria-label="Personagens">
+            <div class="book-spread book-spread-balanced">
+              <div class="book-col">
+                <section class="window-card personagens-ativo-card" aria-label="Personagem em foco na mesa">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">💌</span>
+                      <h2>Na Sua Mesa Agora</h2>
+                    </div>
+                  </div>
+                  <div class="window-body">
+                    <div class="personagem-destaque-box">
+                      <div class="personagem-destaque-svg" id="personagens-ativo-svg"></div>
+                      <div class="personagem-destaque-info">
+                        <strong id="personagens-ativo-nome">O Moreno Sarcástico</strong>
+                        <p id="personagens-ativo-dica">Sem nome próprio fixo: use o arquétipo ou dê o nome que quiser.</p>
+                      </div>
+                    </div>
+                    <p class="helper-text" id="personagens-subtitulo">Cada medalha automática traz uma cartinha lacrada e libera um novo personagem para a mesa (mocinhos, mocinhas e personagens não binários).</p>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card personagens-album-card" aria-label="Álbum de personagens">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">💘</span>
+                      <h2>Álbum de Personagens</h2>
+                    </div>
+                  </div>
+                  <div class="window-body panel-scroll-box">
+                    <div class="personagens-grid" id="grid-personagens"></div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+
+          <!-- ABA 8: AJUSTES -->
+          <section class="book-panel" data-tab-panel="ajustes" hidden aria-label="Ajustes">
+            <div class="book-spread book-spread-even">
+              <div class="book-col">
+                <section class="window-card ajustes-card" aria-label="Som e ficha">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">🔊</span>
+                      <h2>Som &amp; Sua Ficha</h2>
+                    </div>
+                  </div>
+                  <div class="window-body ajustes-stack">
+                    <div class="ajustes-bloco">
+                      <h3>🔊 Efeitos sonoros e volume</h3>
+                      <div class="ajustes-som-row">
+                        <button type="button" class="btn btn-secondary btn-sound-toggle" id="btn-som-ajustes" aria-pressed="true">
+                          🔊 Som ligado
+                        </button>
+                        <input type="range" id="input-volume-som" class="volume-slider" min="0" max="100" step="5" value="80" title="Ajustar volume dos efeitos sonoros" aria-label="Volume dos efeitos sonoros">
+                        <span class="volume-pct" id="label-volume-som">80%</span>
+                      </div>
+                      <p class="helper-text">
+                        Palavras no automático só sobem o número em silêncio. Tomatinhos dão brilho rápido; metas e medalhas trazem confete; concluir quest dispara a festa do dragão.
+                      </p>
+                    </div>
+
+                    <div class="ajustes-bloco">
+                      <h3>🧙‍♀️ Ficha &amp; Frases</h3>
+                      <p class="helper-text" id="resumo-perfil-ajustes">Carregando sua ficha...</p>
+                      <div class="ajustes-editores-box">
+                        <span class="label-cute">Onde você escreve? (Pode marcar mais de uma)</span>
+                        <div class="editores-check-row" id="ajustes-editores-row">
+                          <label class="editor-chip-check">
+                            <input type="checkbox" name="ajustes-editor" value="word">
+                            <span>📝 Word</span>
+                          </label>
+                          <label class="editor-chip-check">
+                            <input type="checkbox" name="ajustes-editor" value="pages">
+                            <span>🍎 Pages</span>
+                          </label>
+                          <label class="editor-chip-check">
+                            <input type="checkbox" name="ajustes-editor" value="gdocs">
+                            <span>☁️ Google Docs</span>
+                          </label>
+                          <label class="editor-chip-check">
+                            <input type="checkbox" name="ajustes-editor" value="outro">
+                            <span>✍️ Outro</span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="ajustes-btn-row">
+                        <button type="button" class="btn btn-secondary" id="btn-perfil">
+                          🧙‍♀️ Editar ficha e metas
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-frases">
+                          📜 Editar frases carinhosas
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="book-col">
+                <section class="window-card backup-card" aria-label="Backup e manual">
+                  <div class="window-titlebar">
+                    <div class="titlebar-left">
+                      <span class="titlebar-icon">⚙️</span>
+                      <h2>Backup &amp; Manual</h2>
+                    </div>
+                  </div>
+                  <div class="window-body ajustes-stack">
+                    <div class="ajustes-bloco">
+                      <h3>💾 Save do Jogo (só seu)</h3>
+                      <p class="helper-text">Tudo fica salvo apenas neste computador. Baixe uma cópia de segurança de vez em quando.</p>
+                      <div class="ajustes-btn-row">
+                        <button type="button" class="btn btn-secondary" id="btn-baixar-backup">
+                          💾 Baixar backup (.json)
+                        </button>
+                        <label class="btn btn-secondary file-btn-label">
+                          📂 Restaurar backup (.json)
+                          <input type="file" id="input-restaurar-backup" accept=".json,application/json" hidden>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="ajustes-bloco">
+                      <h3>📖 Manual, Tutorial &amp; Janelinha</h3>
+                      <p class="helper-text">Abra o guia completo da fazenda, reveja a Quest 0 na Mesa ou abra a Janelinha flutuante.</p>
+                      <div class="ajustes-btn-row">
+                        <button type="button" class="btn btn-secondary" id="btn-manual">
+                          📖 Abrir Manual
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-rever-quest-zero">
+                          🧭 Rever Quest 0
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-abrir-janelinha-ajustes">
+                          ↗ Abrir Janelinha
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Abinhas coloridas laterais estilo caderno RPG -->
+      <nav class="book-tabs-rail" id="book-tabs-rail" aria-label="Abas do caderno">
+        <button type="button" class="book-tab-btn tab-cor-mesa is-active" data-tab-target="mesa" title="Mesa de escrita, relógio e quest em foco">
+          <span class="book-tab-ico">🪵</span>
+          <span class="book-tab-lbl">Mesa</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-quests" data-tab-target="quests" title="Quests e missões">
+          <span class="book-tab-ico">⚔️</span>
+          <span class="book-tab-lbl">Quests</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-diario" data-tab-target="diario" title="Diário de bordo">
+          <span class="book-tab-ico">📖</span>
+          <span class="book-tab-lbl">Diário</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-prazos" data-tab-target="prazos" title="Prazos">
+          <span class="book-tab-ico">📌</span>
+          <span class="book-tab-lbl">Prazos</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-estante" data-tab-target="estante" title="Estante de livros">
+          <span class="book-tab-ico">📚</span>
+          <span class="book-tab-lbl">Estante</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-trofeus" data-tab-target="trofeus" title="Troféus e medalhas">
+          <span class="book-tab-ico">🏆</span>
+          <span class="book-tab-lbl">Troféus</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-personagens" data-tab-target="personagens" title="Personagens">
+          <span class="book-tab-ico">💘</span>
+          <span class="book-tab-lbl">Elenco</span>
+        </button>
+        <button type="button" class="book-tab-btn tab-cor-ajustes" data-tab-target="ajustes" title="Som, frases, perfil, backup e manual">
+          <span class="book-tab-ico">⚙️</span>
+          <span class="book-tab-lbl">Ajustes</span>
+        </button>
+      </nav>
+    </div>
+  </main>
+
+  <!-- MODAL: COMEMORAÇÃO COM CONFETE -->
+  <div class="modal-backdrop" id="modal-conquista" hidden role="dialog" aria-modal="true" aria-labelledby="conquista-titulo">
+    <div class="window-card modal-window conquista-window">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">🏆</span>
+          <span>Inventário de Conquistas</span>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-conquista-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body conquista-body">
+        <div class="dragon-slayer-banner" id="dragon-slayer-banner" hidden>
+          <span>🐉⚔️</span>
+          <span>FEITO ÉPICO • VOCÊ PRATICAMENTE MATOU UM DRAGÃO!</span>
+          <span>✨</span>
+        </div>
+        <div class="wax-seal-banner" id="wax-seal-banner" hidden>
+          <span class="wax-seal-icon">💌</span>
+          <span>Cartinha Lacrada da Guilda</span>
+        </div>
+        <div class="conquista-emoji" id="conquista-emoji">🏆</div>
+        <div class="conquista-palmas" id="conquista-palmas" hidden>👏👏👏 Salva de palmas da guilda! 👏👏👏</div>
+        <h3 class="conquista-titulo" id="conquista-titulo">Meta batida!</h3>
+        <div class="conquista-xp" id="conquista-xp">+50 XP</div>
+        <p class="conquista-frase" id="conquista-frase">A procrastinação mandou lembranças!</p>
+
+        <div class="conquista-npc-box" id="conquista-npc-box" hidden>
+          <div class="conquista-npc-svg" id="conquista-npc-svg"></div>
+          <div class="conquista-npc-text">
+            <strong class="conquista-npc-nome" id="conquista-npc-nome">O Moreno Sarcástico</strong>
+            <p class="conquista-npc-fala" id="conquista-npc-fala"></p>
+          </div>
+        </div>
+
+        <div class="novo-personagem-card" id="conquista-novo-personagem" hidden>
+          <div class="novo-personagem-tag">💘 Novo personagem desbloqueado!</div>
+          <div class="novo-personagem-row">
+            <div class="novo-personagem-svg" id="novo-personagem-svg"></div>
+            <div class="novo-personagem-info">
+              <strong id="novo-personagem-nome">O Loiro Golden Retriever</strong>
+              <span id="novo-personagem-arq">Quer acompanhar sua escrita na mesa.</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-small" id="btn-chamar-novo-personagem">
+              Chamar pra mesa 💘
+            </button>
+          </div>
+        </div>
+
+        <div class="conquista-actions">
+          <button type="button" class="btn btn-secondary" id="btn-salvar-cartinha">
+            📸 Salvar cartinha como imagem
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-fechar-conquista">
+            Beleza, valeu! ⚔️
+          </button>
+        </div>
+        <div class="auto-close-bar">
+          <div class="auto-close-fill" id="auto-close-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR / CRIAR LIVRO -->
+  <div class="modal-backdrop" id="modal-livro" hidden role="dialog" aria-modal="true" aria-labelledby="modal-livro-titulo">
+    <div class="window-card modal-window">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">📖</span>
+          <h3 id="modal-livro-titulo">Editar livro</h3>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-livro-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body">
+        <form id="form-livro" class="stack-form">
+          <input type="hidden" id="livro-edit-id" value="">
+
+          <label class="field-group">
+            <span>Nome do livro</span>
+            <input type="text" id="livro-nome" class="input-cute" required placeholder="Ex: Crônicas da Fazenda">
+          </label>
+
+          <div class="field-row">
+            <label class="field-group">
+              <span>Status</span>
+              <select id="livro-status" class="input-cute">
+                <option value="Semente 🌱">Semente 🌱</option>
+                <option value="Planejando 🗺️">Planejando 🗺️</option>
+                <option value="Rascunho ✍️">Rascunho ✍️</option>
+                <option value="Revisão 🔍">Revisão 🔍</option>
+                <option value="Pausado 🌙">Pausado 🌙</option>
+                <option value="Finalizado 🏆">Finalizado 🏆</option>
+              </select>
+            </label>
+
+            <label class="field-group">
+              <span>Total de palavras atual</span>
+              <input type="number" id="livro-palavras" class="input-cute" min="0" value="0">
+            </label>
+          </div>
+
+          <div class="field-group">
+            <span>Cor da lombada</span>
+            <div class="color-palette" id="livro-cores"></div>
+          </div>
+
+          <label class="field-group">
+            <span>Descrição / premissa rápida</span>
+            <textarea id="livro-descricao" class="textarea-cute" rows="3" placeholder="Um resumo curto pra lembrar o clima dessa história..."></textarea>
+          </label>
+
+          <div class="field-group">
+            <span>Arquivos marcados deste livro (nomes separados por vírgula)</span>
+            <div class="inline-form">
+              <input type="text" id="livro-arquivos-marcados" class="input-cute" placeholder="Ex: Capítulo 4.docx, Manuscrito.docx">
+              <label class="btn btn-secondary btn-small file-btn-label">
+                + Escolher arquivo
+                <input type="file" id="input-arquivo-livro" accept=".txt,.md,.docx,.odt,.pages" hidden>
+              </label>
+            </div>
+          </div>
+
+          <label class="field-group">
+            <span>Palavras-chave no nome do arquivo (opcional, separadas por vírgula)</span>
+            <input type="text" id="livro-palavras-chave" class="input-cute" placeholder="Ex: Trilha, cap">
+          </label>
+
+          <small class="helper-text" id="livro-arquivo-dica">
+            O contador confere SÓ o nome do documento aberto no Word/Pages. Se o nome não estiver na lista nem tiver essas palavras-chave, ele ignora e nem lê o texto.
+          </small>
+
+          <div class="modal-footer-btns">
+            <button type="button" class="btn btn-secondary" id="btn-cancelar-livro">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar livro 🪵</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FRASES -->
+  <div class="modal-backdrop" id="modal-frases" hidden role="dialog" aria-modal="true" aria-labelledby="modal-frases-titulo">
+    <div class="window-card modal-window">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">📜</span>
+          <h3 id="modal-frases-titulo">Frases das Conquistas</h3>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-frases-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body">
+        <p class="helper-text">
+          Quando você bate uma meta, fecha uma quest ou ganha troféu, o jogo sorteia uma destas (sempre torcendo por você):
+        </p>
+
+        <form id="form-nova-frase" class="inline-form">
+          <input type="text" id="input-nova-frase" class="input-cute" placeholder="Escreva uma frase engraçadinha e carinhosa...">
+          <button type="submit" class="btn btn-primary btn-small">Adicionar</button>
+        </form>
+
+        <ul class="frases-lista" id="lista-frases"></ul>
+
+        <div class="modal-footer-btns">
+          <button type="button" class="btn btn-primary" id="btn-fechar-frases">Pronto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CRIAÇÃO DE PERSONAGEM / PRIMEIRA VEZ -->
+  <div class="modal-backdrop" id="modal-onboarding" hidden role="dialog" aria-modal="true" aria-labelledby="modal-onboarding-titulo">
+    <div class="window-card modal-window modal-window-wide">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">🧙‍♀️</span>
+          <h3 id="modal-onboarding-titulo">Criação de Personagem • Fazenda de Livrinhos</h3>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-onboarding-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body">
+        <p class="helper-text onboarding-intro">
+          Antes de abrir a mesa de escrita, preencha sua ficha. Você pode mudar tudo depois em <strong>🧙‍♀️ Perfil</strong>.
+        </p>
+
+        <form id="form-onboarding" class="modal-form">
+          <label class="label-cute">
+            1. Como a fazenda pode te chamar?
+            <input type="text" id="onb-nome-autora" class="input-cute" placeholder="Ex: Lua" maxlength="40">
+          </label>
+
+          <label class="label-cute">
+            2. Qual livro você está escrevendo agora?
+            <input type="text" id="onb-nome-livro" class="input-cute" placeholder="Ex: Meu Primeiro Romance">
+          </label>
+
+          <fieldset class="onb-fieldset">
+            <legend class="label-cute">3. Onde você escreve? (Pode marcar mais de uma)</legend>
+            <div class="onb-pref-grid onb-editores-grid">
+              <label class="onb-pref-card">
+                <input type="checkbox" name="onb-editor" value="word">
+                <span><strong>📝 Word</strong><small>Contagem automática no Windows e no Mac</small></span>
+              </label>
+              <label class="onb-pref-card">
+                <input type="checkbox" name="onb-editor" value="pages">
+                <span><strong>🍎 Pages</strong><small>Contagem automática no Mac</small></span>
+              </label>
+              <label class="onb-pref-card">
+                <input type="checkbox" name="onb-editor" value="gdocs">
+                <span><strong>☁️ Google Docs</strong><small>Contagem pelo total do arquivo na Mesa</small></span>
+              </label>
+              <label class="onb-pref-card">
+                <input type="checkbox" name="onb-editor" value="outro">
+                <span><strong>✍️ Outro</strong><small>Scrivener, Obsidian, caderno ou outros</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label class="label-cute">
+            3b. Palavra-chave ou arquivo deste livro no Word/Pages (opcional):
+            <input type="text" id="onb-palavra-chave-livro" class="input-cute" placeholder="Ex: Trilha, cap, Meu Romance.docx">
+            <small class="helper-text">
+              Para o contador automático saber que esse arquivo é do livro (qualquer outro documento aberto ele ignora 💤).
+            </small>
+          </label>
+
+          <div class="form-row-2">
+            <label class="label-cute">
+              4. Meta de um dia normal (palavras):
+              <input type="number" id="onb-meta-dia" class="input-cute" min="10" step="10" value="1000">
+            </label>
+            <label class="label-cute">
+              5. Meta mínima de dia difícil:
+              <input type="number" id="onb-meta-minima" class="input-cute" min="10" step="10" value="250">
+            </label>
+          </div>
+
+          <fieldset class="onb-fieldset">
+            <legend class="label-cute">6. Quem você quer encontrar pela fazenda? (Define os primeiros acompanhantes das cartinhas)</legend>
+            <div class="onb-pref-grid">
+              <label class="onb-pref-card">
+                <input type="radio" name="onb-preferencia" value="todos" checked>
+                <span><strong>🌟 Todo mundo</strong><small>Mocinhos, mocinhas e pessoas não binárias</small></span>
+              </label>
+              <label class="onb-pref-card">
+                <input type="radio" name="onb-preferencia" value="mocinhos">
+                <span><strong>🗡️ Mocinhos</strong><small>Do moreno sarcástico ao golden retriever</small></span>
+              </label>
+              <label class="onb-pref-card">
+                <input type="radio" name="onb-preferencia" value="mocinhas">
+                <span><strong>🌹 Mocinhas</strong><small>Da ruiva caótica à vilã elegante</small></span>
+              </label>
+              <label class="onb-pref-card">
+                <input type="radio" name="onb-preferencia" value="naobinarios">
+                <span><strong>✨ Pessoas não binárias</strong><small>Do barde dramátique ao alquimista da floresta</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="modal-footer-btns">
+            <button type="submit" class="btn btn-primary">Entrar na fazenda 🌿</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MANUAL DA FAZENDA -->
+  <div class="modal-backdrop" id="modal-manual" hidden role="dialog" aria-modal="true" aria-labelledby="modal-manual-titulo">
+    <div class="window-card modal-window modal-window-wide">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">📖</span>
+          <h3 id="modal-manual-titulo">Manual da Fazenda de Livrinhos</h3>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-manual-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body">
+        <div class="manual-lista">
+          <div class="manual-bloco">
+            <strong>🪑 1. Mesa de Escrita (Escrita, Misto e Revisão)</strong>
+            <p>Escolha seu livro em foco e o modo do dia: <strong>Dia de Escrita</strong> (conta palavras), <strong>Dia de Revisão</strong> (conta minutos) ou <strong>Dia Misto</strong> (conta as palavras escritas em destaque e também os minutos de revisão embaixo; as duas coisas entram no placar dos Troféus e valem para as medalhas). Nada do seu livro sai do seu computador.</p>
+          </div>
+          <div class="manual-bloco">
+            <strong>📎 2. Arquivos marcados &amp; Contador automático (Word e Pages)</strong>
+            <p>Na <strong>Estante de Projetos</strong>, clique em <em>Editar</em> no seu livro e marque os nomes de arquivo ou palavras-chave (ex.: <code>Trilha</code>, <code>cap</code>). O contador confere <strong>só o nome</strong> do documento aberto no Word/Pages e ignora tudo o que não for de nenhum livro (💤).</p>
+          </div>
+          <div class="manual-bloco">
+            <strong>☁️ 3. Escrevendo no Google Docs</strong>
+            <p>O Docs mora na internet e a Central, de propósito, não. Por isso a contagem do Docs é por esse número: lá no Google Docs, abra <strong>Ferramentas → Contagem de palavras</strong> e marque <em>"Mostrar contagem de palavras durante a digitação"</em>. No fim da sessão, abra <strong>Outras formas de contar</strong> na Mesa, digite o total em <strong>Atualizar total do arquivo</strong> e a Central calcula as palavras novas sozinha.</p>
+          </div>
+          <div class="manual-bloco">
+            <strong>🍅 4. Pomodoro, Som Ambiente &amp; Minijogos na Pausa</strong>
+            <p><strong>O Moreno Sarcástico</strong> e <strong>A Gatinha da Fazenda</strong> já te esperam desde o dia 1. Durante a pausa, aparecem os botões <strong>Brincar na pausa 🎮</strong> (com <em>Cobrinha da Horta</em>, <em>Blocos do Celeiro</em> e <em>Fuga da Procrastinação</em>, que guardam só seu recorde sem dar XP e fecham sozinhos quando a pausa acaba) e <strong>Pular pausa ⏭</strong>. No cantinho do relógio, o player de <strong>🎧 Som ambiente</strong> gera <em>Chuva</em>, <em>Lareira (estalinhos)</em>, <em>Ruído marrom</em> e <em>Ruído branco</em> direto no programa.</p>
+          </div>
+          <div class="manual-bloco">
+            <strong>🎯 5. Quests &amp; Tomatinhos</strong>
+            <p>Em <em>Missões &amp; Quests</em>, monte uma listinha de cena e clique em <strong>🎯 Pôr em foco</strong>. Cada pomodoro fechado amadurece um tomatinho verde para vermelho até fechar a quest.</p>
+          </div>
+          <div class="manual-bloco">
+            <strong>💌 6. Cartinhas Lacradas &amp; Personagens</strong>
+            <p>As <strong>Medalhas Automáticas</strong> vêm em cartinhas lacradas com confete e liberam novos mocinhos, mocinhas e personagens não binários no seu <strong>Álbum de Personagens</strong>.</p>
+          </div>
+          <div class="manual-bloco">
+            <strong>🪟 7. Janelinha da Mesa &amp; Backup</strong>
+            <p>O botão <strong>↗ Janelinha</strong> abre só o personagem torcendo, o relógio com tomatinhos e as palavras de hoje ao lado do seu texto. E na aba <strong>⚙️ Ajustes</strong> você pode mudar onde escreve e baixar um arquivo <code>.json</code> pra guardar seu progresso.</p>
+          </div>
+        </div>
+
+        <div class="modal-footer-btns manual-footer">
+          <button type="button" class="btn btn-secondary" id="btn-manual-perfil">🧙‍♀️ Refazer sua ficha</button>
+          <button type="button" class="btn btn-secondary" id="btn-manual-quest-zero">🧭 Rever Quest 0</button>
+          <button type="button" class="btn btn-primary" id="btn-fechar-manual">Entendi! 🌿</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CORRIGIR PALAVRAS DE HOJE -->
+  <div class="modal-backdrop" id="modal-corrigir-palavras" hidden role="dialog" aria-modal="true" aria-labelledby="modal-corrigir-titulo">
+    <div class="window-card modal-window corrigir-window">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">✏️</span>
+          <h3 id="modal-corrigir-titulo">Corrigir palavras de hoje</h3>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-corrigir-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body">
+        <p class="helper-text" id="corrigir-resumo-atual">
+          Hoje: 0 palavras escritas. O total do livro continua igual.
+        </p>
+
+        <div class="corrigir-opcoes-lista" id="corrigir-passo-opcoes">
+          <button type="button" class="btn btn-secondary corrigir-opcao-btn" id="btn-corrigir-ultima">
+            <span class="corrigir-opcao-titulo">↩️ Desfazer a última soma</span>
+            <span class="corrigir-opcao-desc" id="desc-corrigir-ultima">Tira só o último pulo do contador</span>
+          </button>
+
+          <form class="corrigir-ajustar-box" id="form-corrigir-numero">
+            <label class="corrigir-opcao-titulo" for="input-corrigir-numero">🔢 Ajustar pra um número</label>
+            <div class="inline-form">
+              <input type="number" id="input-corrigir-numero" class="input-cute" min="0" placeholder="Ex: 320">
+              <button type="submit" class="btn btn-primary btn-small">Ajustar</button>
+            </div>
+          </form>
+
+          <button type="button" class="btn btn-secondary corrigir-opcao-btn" id="btn-corrigir-zerar">
+            <span class="corrigir-opcao-titulo">🧹 Zerar as palavras de hoje</span>
+            <span class="corrigir-opcao-desc">Volta a contagem de escrita de hoje para 0</span>
+          </button>
+        </div>
+
+        <div class="corrigir-confirm-box" id="corrigir-passo-confirm" hidden>
+          <p class="corrigir-confirm-fala" id="corrigir-confirm-fala">
+            Tem certeza? O Moreno Sarcástico promete não contar pra ninguém.
+          </p>
+          <p class="helper-text" id="corrigir-confirm-detalhe"></p>
+          <div class="modal-footer-btns">
+            <button type="button" class="btn btn-secondary" id="btn-corrigir-cancelar">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="btn-corrigir-confirmar">Sim, corrigir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MINIJOGOS NA PAUSA -->
+  <div class="modal-backdrop" id="modal-minijogos" hidden role="dialog" aria-modal="true" aria-labelledby="modal-minijogos-titulo">
+    <div class="window-card modal-window minijogos-window">
+      <div class="window-titlebar">
+        <div class="titlebar-left">
+          <span class="titlebar-icon">🎮</span>
+          <h3 id="modal-minijogos-titulo">Recreio da Fazenda (só na pausa!)</h3>
+        </div>
+        <button type="button" class="titlebar-close" id="btn-fechar-minijogos-x" aria-label="Fechar">✕</button>
+      </div>
+      <div class="window-body minijogos-body">
+        <div class="minijogos-top-bar">
+          <div class="minijogos-tabs" role="tablist" aria-label="Escolher minijogo">
+            <button type="button" class="btn btn-secondary btn-small is-active" data-minijogo-tab="cobrinha">
+              🐍 Cobrinha da Horta
+            </button>
+            <button type="button" class="btn btn-secondary btn-small" data-minijogo-tab="blocos">
+              🪵 Blocos do Celeiro
+            </button>
+            <button type="button" class="btn btn-secondary btn-small" data-minijogo-tab="fuga">
+              🏃‍♀️ Fuga da Procrastinação
+            </button>
+          </div>
+          <span class="minijogos-pausa-pill" id="minijogo-tempo-pausa">☕ Pausa: 05:00</span>
+        </div>
+
+        <div class="minijogos-placar-row">
+          <span id="minijogo-pontos">Pontos: 0</span>
+          <span id="minijogo-recorde">🏆 Recorde: 0</span>
+          <button type="button" class="btn btn-primary btn-tiny" id="btn-minijogo-reiniciar">↻ Jogar de novo</button>
+        </div>
+
+        <div class="minijogo-canvas-wrap">
+          <canvas id="minijogo-canvas" width="300" height="300" aria-label="Tela do minijogo"></canvas>
+        </div>
+
+        <p class="minijogo-status" id="minijogo-status">
+          Use as setas do teclado ou clique nos botões abaixo (vale só recorde, sem XP!).
+        </p>
+
+        <div class="minijogo-controles-touch" id="minijogo-controles-touch">
+          <button type="button" class="btn btn-secondary btn-small" data-minijogo-dir="left">⬅️</button>
+          <button type="button" class="btn btn-secondary btn-small" data-minijogo-dir="up">⬆️ / Girar / Pular</button>
+          <button type="button" class="btn btn-secondary btn-small" data-minijogo-dir="down">⬇️</button>
+          <button type="button" class="btn btn-secondary btn-small" data-minijogo-dir="right">➡️</button>
+        </div>
+
+        <div class="modal-footer-btns">
+          <button type="button" class="btn btn-secondary btn-small" id="btn-minijogo-pular-pausa">Pular pausa ⏭</button>
+          <button type="button" class="btn btn-primary btn-small" id="btn-fechar-minijogos">Voltar pra Mesa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3411 @@
+/* ============================================================
+   Central de Livrinhos: RPG Cozy de Fazendinha em Pixel Art
+   Madeira quentinha, pergaminho, verde musgo, dourado e rosa só no detalhe.
+   100% offline, sem fontes externas, sem dependências.
+   ============================================================ */
+
+:root {
+  --bg-forest: #2b3d30;
+  --bg-forest-dark: #213026;
+  --bg-forest-tile: #334838;
+
+  --parchment: #f6ecd6;
+  --parchment-deep: #eadbb9;
+  --parchment-input: #fbf5e7;
+  --wood-frame: #5c3820;
+  --wood-dark: #3a2010;
+  --wood-light: #8a5835;
+  --wood-title-top: #6d4427;
+  --wood-title-bottom: #4f2f19;
+  --gold: #d9a441;
+  --gold-bright: #f2c968;
+  --gold-dark: #936619;
+
+  --ink: #3a2416;
+  --ink-soft: #6c4c37;
+  --leaf: #4d8049;
+  --leaf-dark: #2c4e2a;
+  --leaf-soft: #e0ecd8;
+  --leaf-border: #6f9e69;
+  --terracotta: #c86446;
+  --rose-detail: #d97f98;
+  --rose-soft: #f6e1e6;
+  --danger-bg: #f6dcd6;
+  --danger-border: #b85d4d;
+  --danger-ink: #842e23;
+
+  --font-ui: "Trebuchet MS", "Segoe UI", "Hiragino Sans", sans-serif;
+  --font-pixel: "Courier New", "Monaco", "Menlo", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  background-color: var(--bg-forest);
+  background-image:
+    linear-gradient(45deg, var(--bg-forest-tile) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--bg-forest-tile) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--bg-forest-dark) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--bg-forest-dark) 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+  background-attachment: fixed;
+  line-height: 1.45;
+}
+
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ============================================================
+   BARRA SUPERIOR (HUD DE RPG)
+   ============================================================ */
+.topbar {
+  background: linear-gradient(180deg, #5e3a21 0%, #442815 100%);
+  border-bottom: 4px solid var(--gold);
+  box-shadow: 0 4px 0 #1b281e;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  color: #fff4d8;
+}
+
+.topbar-inner {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 10px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.brand-icon {
+  font-size: 1.9rem;
+  filter: drop-shadow(2px 2px 0 #261409);
+}
+
+.brand-title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gold-bright);
+  text-shadow: 2px 2px 0 #261409;
+}
+
+.brand-sub {
+  margin: 1px 0 0;
+  font-size: 0.8rem;
+  color: #f3dfc0;
+}
+
+.privacy-pill {
+  background: #304735;
+  border: 2px solid #73a174;
+  color: #e6f4e4;
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  box-shadow: 2px 2px 0 #1d2d21;
+}
+
+.topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.xp-badge {
+  background: linear-gradient(180deg, #ffe28a 0%, #dfa83c 100%);
+  border: 2px solid #7a5210;
+  color: #351f08;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-family: var(--font-pixel);
+  font-weight: 800;
+  font-size: 0.8rem;
+  box-shadow: 2px 2px 0 #261409;
+}
+
+/* ============================================================
+   BOTÕES & INPUTS (ESTILO PIXEL / MADEIRA / PERGAMINHO)
+   ============================================================ */
+.btn {
+  appearance: none;
+  border: 2px solid var(--wood-frame);
+  border-radius: 6px;
+  padding: 8px 13px;
+  font-family: var(--font-pixel);
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  box-shadow: 2px 2px 0 var(--wood-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--parchment-deep);
+}
+
+.btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--wood-dark);
+}
+
+.btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--wood-dark);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #629b5b 0%, var(--leaf) 100%);
+  border-color: var(--leaf-dark);
+  color: #fff9e6;
+  text-shadow: 1px 1px 0 #213d1f;
+  box-shadow: 2px 2px 0 #1f391d;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #6eab66 0%, #558c50 100%);
+}
+
+.btn-secondary {
+  background: linear-gradient(180deg, #f3e6ca 0%, #e4cfa4 100%);
+  border-color: #7c5132;
+  color: var(--ink);
+}
+
+.btn-gold {
+  background: linear-gradient(180deg, #f5cd6b 0%, #d89b2b 100%);
+  border-color: #784f0f;
+  color: #362008;
+  box-shadow: 2px 2px 0 #4d3208;
+}
+
+.btn-mini-mode {
+  background: linear-gradient(180deg, #e7c2cb 0%, #d99cae 100%);
+  border-color: #7c4054;
+  color: #3d1d29;
+  box-shadow: 2px 2px 0 #2e151e;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-style: dashed;
+  border-color: #8b6040;
+  box-shadow: none;
+  color: var(--ink-soft);
+}
+
+.btn-ghost:hover {
+  background: #eadbb9;
+  box-shadow: none;
+}
+
+.btn-chip {
+  background: #efe1c1;
+  border-color: #7c5132;
+  color: #4a2c18;
+  padding: 6px 11px;
+}
+
+.btn-small {
+  padding: 6px 10px;
+  font-size: 0.76rem;
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-ink);
+}
+
+.file-btn-label {
+  cursor: pointer;
+}
+
+.input-cute,
+.textarea-cute {
+  width: 100%;
+  border: 2px solid #8a5c3a;
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  color: var(--ink);
+  background: var(--parchment-input);
+  box-shadow: inset 2px 2px 0 #e5d4b1;
+  outline: none;
+}
+
+.input-cute:focus,
+.textarea-cute:focus {
+  border-color: var(--leaf);
+  box-shadow: inset 2px 2px 0 #e5d4b1, 0 0 0 2px rgba(77, 128, 73, 0.25);
+}
+
+.input-tiny {
+  width: 78px;
+  border: 2px solid #8a5c3a;
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-family: var(--font-pixel);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--parchment-input);
+}
+
+.input-tiny.input-name {
+  width: 112px;
+  font-family: var(--font-ui);
+}
+
+/* ============================================================
+   PAINÉIS DE MADEIRA & PERGAMINHO
+   ============================================================ */
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 12px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.window-card {
+  background: var(--parchment);
+  border: 4px solid var(--wood-frame);
+  outline: 2px solid var(--wood-dark);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 2px #dfcda9, 6px 6px 0 #17231a;
+  overflow: hidden;
+}
+
+.window-titlebar {
+  background: linear-gradient(180deg, var(--wood-title-top) 0%, var(--wood-title-bottom) 100%);
+  border-bottom: 3px solid var(--gold);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titlebar-left h2,
+.titlebar-left h3 {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 0.98rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #fff4d4;
+  text-shadow: 2px 2px 0 #261409;
+}
+
+.titlebar-dots {
+  display: flex;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--gold-bright);
+  user-select: none;
+}
+
+.titlebar-dots span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #3d2413;
+  border: 1.5px solid var(--gold-dark);
+  border-radius: 3px;
+}
+
+.titlebar-close {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  background: #3d2413;
+  color: #fff4d4;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.window-body {
+  padding: 16px;
+}
+
+/* ============================================================
+   A MESA DE ESCRITA
+   ============================================================ */
+.mesa-top-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.livro-ativo-box {
+  flex: 1 1 220px;
+}
+
+.label-cute {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.select-with-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #fff6e0;
+  outline: 2px solid var(--wood-frame);
+  flex-shrink: 0;
+  background: #5c8d58;
+}
+
+.modo-dia-toggle {
+  display: inline-flex;
+  background: #e5d5b3;
+  border: 2px solid #8a5c3a;
+  border-radius: 6px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.mode-tab {
+  border: none;
+  background: transparent;
+  padding: 6px 11px;
+  border-radius: 4px;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.mode-tab.is-active {
+  background: var(--leaf);
+  color: #fff9e6;
+  box-shadow: 1px 1px 0 var(--leaf-dark);
+}
+
+.big-counter-box {
+  background: #fbf3df;
+  border: 3px solid #966642;
+  border-radius: 8px;
+  padding: 18px 16px;
+  text-align: center;
+  margin-bottom: 14px;
+  box-shadow: inset 0 0 0 2px #ebdcb9;
+}
+
+.big-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.big-number {
+  font-family: var(--font-pixel);
+  font-size: 3.1rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #3b6938;
+  text-shadow: 2px 2px 0 #d5e2ca;
+}
+
+.big-unit {
+  font-family: var(--font-pixel);
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--wood-frame);
+}
+
+.saldo-sub {
+  margin: 8px 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dica-suave {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.progress-section {
+  margin-bottom: 16px;
+}
+
+.progress-labels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.badge-minima {
+  background: var(--leaf-soft);
+  border: 2px solid var(--leaf-border);
+  color: #294b27;
+  padding: 2px 9px;
+  border-radius: 5px;
+  font-size: 0.74rem;
+}
+
+.progress-track {
+  position: relative;
+  height: 22px;
+  margin-top: 18px;
+  background: #dfd0af;
+  border: 2px solid #7d5232;
+  border-radius: 6px;
+  overflow: visible;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #589254,
+    #589254 10px,
+    #6ea969 10px,
+    #6ea969 20px
+  );
+  transition: width 0.35s ease;
+  max-width: 100%;
+}
+
+.progress-fill.is-revisao {
+  background: repeating-linear-gradient(
+    -45deg,
+    #d49b35,
+    #d49b35 10px,
+    #e8b85a 10px,
+    #e8b85a 20px
+  );
+}
+
+.progress-marker {
+  position: absolute;
+  top: -7px;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 32px;
+  background: var(--terracotta);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.marker-icon {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+}
+
+.metas-inline {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.meta-edit-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+/* Contagem simplificada na Mesa */
+.update-tabs-wrapper {
+  border-top: 2px dashed #b9996d;
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subpanel-heading {
+  margin: 0 0 8px;
+  font-family: var(--font-pixel);
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.outros-jeitos-details {
+  background: #efe1c1;
+  border: 2px solid #a67b51;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.outros-jeitos-details summary {
+  cursor: pointer;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.outros-jeitos-content {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.outro-jeito-card {
+  background: #fbf3df;
+  border: 2px solid #b58d60;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.outro-jeito-card strong {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.quick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-form .input-cute {
+  flex: 1 1 180px;
+}
+
+.stack-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.helper-text {
+  margin: 0 0 8px;
+  font-size: 0.83rem;
+  color: var(--ink-soft);
+}
+
+.paste-footer {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.paste-count {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.paste-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mesa-feedback,
+.quest-feedback {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  background: #fff2cc;
+  border: 2px solid var(--gold-dark);
+  color: #4f3507;
+}
+
+.mesa-feedback.is-good,
+.quest-feedback.is-good {
+  background: var(--leaf-soft);
+  border-color: var(--leaf);
+  color: #234321;
+}
+
+.mesa-feedback.is-warn,
+.quest-feedback.is-warn {
+  background: #f8e2d7;
+  border-color: var(--terracotta);
+  color: #6f2d19;
+}
+
+.revisao-controles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  border-top: 2px dashed #b9996d;
+  padding-top: 14px;
+}
+
+.revisao-timer-status {
+  font-family: var(--font-pixel);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #3f6e3c;
+}
+
+/* ============================================================
+   DIÁRIO DE BORDO (ABAIXO DA MESA)
+   ============================================================ */
+.diario-topo-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.diario-livro-badge {
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: #efe1c1;
+  border: 2px solid #8a5c3a;
+  border-radius: 5px;
+  padding: 3px 9px;
+}
+
+.diario-filtro-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.diario-form {
+  margin-bottom: 12px;
+}
+
+.diario-prefixo {
+  font-family: var(--font-pixel);
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--leaf-dark);
+  white-space: nowrap;
+}
+
+.diario-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.diario-item {
+  background: #fbf3df;
+  border: 2px solid #966642;
+  border-left-width: 6px;
+  border-radius: 6px;
+  padding: 8px 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.diario-item-meta {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  margin-bottom: 2px;
+}
+
+.diario-item-texto {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+/* ============================================================
+   POMODORO + MASCOTE PIXEL ART
+   ============================================================ */
+.pomodoro-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pomo-top-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.pomo-modes {
+  display: inline-flex;
+  background: #e5d5b3;
+  border: 2px solid #8a5c3a;
+  border-radius: 6px;
+  padding: 2px;
+  gap: 4px;
+}
+
+.pomo-mode-btn {
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.pomo-mode-btn.is-active {
+  background: var(--wood-frame);
+  color: #fff6dc;
+}
+
+.pomo-count-badge {
+  background: var(--rose-soft);
+  border: 2px solid var(--rose-detail);
+  color: #6b2e43;
+  border-radius: 5px;
+  padding: 3px 9px;
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.pomo-display-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fbf3df;
+  border: 3px solid #966642;
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: inset 0 0 0 2px #ebdcb9;
+}
+
+.pomo-timer {
+  font-family: var(--font-pixel);
+  font-size: 2.9rem;
+  font-weight: 800;
+  color: #462a17;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 0 #e0caa3;
+}
+
+.mascote-inline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  min-width: 130px;
+}
+
+.mascote-svg-wrap {
+  width: 78px;
+  height: 78px;
+  image-rendering: pixelated;
+  animation: mascotBob 2.6s steps(2, end) infinite;
+}
+
+.mascote-inline.is-festa .mascote-svg-wrap {
+  animation: mascotJump 0.45s steps(2, end) infinite;
+}
+
+.mascote-name {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #462a17;
+  background: #f5dce3;
+  border: 2px solid var(--rose-detail);
+  border-radius: 4px;
+  padding: 1px 7px;
+  margin-top: 2px;
+}
+
+.mascote-bubble {
+  background: #fffaf0;
+  border: 2px solid var(--wood-frame);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  max-width: 175px;
+  margin-bottom: 4px;
+  box-shadow: 2px 2px 0 #cbb58e;
+}
+
+@keyframes mascotBob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes mascotJump {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+}
+
+.pomo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pomo-controls .btn {
+  flex: 1 1 120px;
+}
+
+.pomo-settings {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.pomo-settings summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* ============================================================
+   QUEST EM FOCO & TOMATINHOS VERDES -> VERMELHOS
+   ============================================================ */
+.quest-foco-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quest-select-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.quest-select-row .input-cute {
+  flex: 1;
+}
+
+.nova-quest-form {
+  background: #efe1c1;
+  border: 2px solid #966642;
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quest-active-box {
+  background: #fbf3df;
+  border: 3px solid #8a5c3a;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: inset 0 0 0 2px #eadbb9;
+}
+
+.quest-active-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.quest-active-title {
+  font-size: 0.96rem;
+  color: var(--ink);
+}
+
+.quest-xp-tag {
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: #f5dce3;
+  border: 2px solid var(--rose-detail);
+  color: #6b2e43;
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+.tomatinhos-area {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tomatinhos-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tomatinho {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 5px;
+  transition: transform 0.12s ease;
+}
+
+.tomatinho svg {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* Tomatinho verde (não maduro) */
+.tomatinho.is-verde {
+  background: #ebf3e4;
+  border: 2px dashed #6f9e69;
+}
+
+.tomatinho.is-verde:hover {
+  transform: translateY(-2px);
+  border-style: solid;
+  background: #f2f8ec;
+}
+
+/* Tomatinho vermelho (maduro/aceso) */
+.tomatinho.is-vermelho {
+  background: #fff2c4;
+  border: 2px solid var(--gold-dark);
+  box-shadow: 2px 2px 0 #b88424;
+  animation: ripenPop 0.25s ease;
+}
+
+@keyframes ripenPop {
+  0% { transform: scale(0.85); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.quest-progresso-texto {
+  font-family: var(--font-pixel);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #486f44;
+}
+
+.quest-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quest-actions-row .btn {
+  flex: 1 1 140px;
+}
+
+/* ============================================================
+   QUADRO DE AVISOS (PRAZOS)
+   ============================================================ */
+.prazo-form {
+  margin-bottom: 12px;
+}
+
+.prazo-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.prazo-form-grid .btn {
+  grid-column: span 2;
+}
+
+.prazos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.prazo-item {
+  background: #fbf3df;
+  border: 2px solid #8a5c3a;
+  border-left-width: 7px;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.prazo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prazo-livro-tag {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.prazo-titulo {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.prazo-data-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+
+.prazo-data {
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.prazo-countdown {
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--leaf-soft);
+  border: 1.5px solid var(--leaf-border);
+  color: #274825;
+}
+
+.prazo-countdown.is-hoje {
+  background: #ffe8a3;
+  border-color: var(--gold-dark);
+  color: #5a3c06;
+}
+
+.prazo-countdown.is-passado {
+  background: #f5dce3;
+  border-color: var(--rose-detail);
+  color: #6b2e43;
+}
+
+.prazo-actions {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 14px;
+  border: 2px dashed #9b744d;
+  border-radius: 6px;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+   MURAL DE MISSÕES & QUESTS (FASE 2)
+   ============================================================ */
+.missao-form-box {
+  background: #efe1c1;
+  border: 2px solid #966642;
+  border-radius: 7px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.missao-form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.missao-form-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.missao-col-menor {
+  flex: 1 1 280px;
+}
+
+.missoes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 14px;
+}
+
+.missao-card {
+  background: #fbf3df;
+  border: 2px solid #8a5c3a;
+  border-radius: 7px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 3px 3px 0 #cdb891;
+}
+
+.missao-card.is-em-foco {
+  border-color: var(--gold-dark);
+  box-shadow: 0 0 0 2px var(--gold), 3px 3px 0 #7b532f;
+}
+
+.missao-card.is-concluida {
+  background: #edf4e7;
+  border-color: var(--leaf);
+}
+
+.missao-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.missao-card-title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+
+.missao-menor-box {
+  background: #e7f0df;
+  border: 1.5px dashed #6f9e69;
+  border-radius: 5px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: #274825;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.passos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.passo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.passo-tomate-btn {
+  width: 30px;
+  height: 30px;
+  padding: 3px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.passo-input {
+  flex: 1;
+  border: 1.5px solid #bfa074;
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 0.84rem;
+  background: #fffaf0;
+  color: var(--ink);
+}
+
+.passo-input.is-feito {
+  text-decoration: line-through;
+  color: var(--ink-soft);
+  background: #e7eedf;
+}
+
+.missao-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  border-top: 1.5px dashed #c4a77d;
+  padding-top: 8px;
+}
+
+/* ============================================================
+   SALINHA DE TROFÉUS (FASE 2)
+   ============================================================ */
+.trofeus-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bloco-titulo {
+  margin: 0 0 10px;
+  font-family: var(--font-pixel);
+  font-size: 0.92rem;
+  color: var(--wood-frame);
+}
+
+.bloco-header-inline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bloco-header-inline .bloco-titulo {
+  margin-bottom: 0;
+}
+
+.badge-livro-marco {
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: #e7d6b1;
+  border: 1.5px solid #8a5c3a;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.placar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.placar-card {
+  background: #fbf3df;
+  border: 2px solid #8a5c3a;
+  border-radius: 7px;
+  padding: 12px;
+  box-shadow: inset 0 0 0 2px #eadbb9;
+}
+
+.placar-periodo {
+  font-family: var(--font-pixel);
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--leaf-dark);
+  border-bottom: 2px dashed #c7aa7e;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+.placar-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.84rem;
+}
+
+.placar-linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.placar-linha strong {
+  font-family: var(--font-pixel);
+}
+
+/* Medalhas automáticas */
+.medalhas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.medalha-card {
+  background: #fff7df;
+  border: 2px solid var(--gold-dark);
+  border-radius: 7px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 2px 2px 0 #c9a75c;
+}
+
+.medalha-card.is-bloqueada {
+  background: #cfc2a6;
+  border-color: #7d6b4f;
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.medalha-icone {
+  font-size: 1.7rem;
+  flex-shrink: 0;
+}
+
+.medalha-nome {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.medalha-desc {
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+/* Marcos e Desejos */
+.trofeus-dupla-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.trofeus-bloco-card {
+  background: #efe1c1;
+  border: 2px solid #966642;
+  border-radius: 7px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.marcos-lista,
+.desejos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: none;
+  overflow: visible;
+}
+
+.marco-item,
+.desejo-item {
+  background: #fbf3df;
+  border: 2px solid #8a5c3a;
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.marco-item.is-feito,
+.desejo-item.is-feito {
+  background: #e5f0dd;
+  border-color: var(--leaf);
+}
+
+.marco-nome,
+.desejo-nome {
+  font-weight: 700;
+  font-size: 0.88rem;
+  flex: 1 1 140px;
+}
+
+.marco-actions,
+.desejo-actions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   ESTANTE DA GUILDA
+   ============================================================ */
+.estante-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.estante-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.livro-card {
+  background: #fbf3df;
+  border: 2px solid #8a5c3a;
+  border-top-width: 10px;
+  border-radius: 7px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 3px 3px 0 #c9b48d;
+}
+
+.livro-card.is-ativo {
+  box-shadow: 0 0 0 2px var(--gold), 4px 4px 0 #7b532f;
+  background: #fff9ea;
+}
+
+.livro-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.livro-nome {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+.livro-status-pill {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #e7d6b1;
+  border: 1.5px solid #966a45;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.livro-desc {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--ink-soft);
+}
+
+.livro-meta-dados {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.8rem;
+  color: var(--ink);
+  background: #efe1c1;
+  border: 1.5px solid #c3a579;
+  border-radius: 5px;
+  padding: 7px 9px;
+}
+
+.livro-card-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ============================================================
+   BACKUP FOOTER
+   ============================================================ */
+.backup-body {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.backup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.85rem;
+}
+
+.backup-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ============================================================
+   MODAIS
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 30, 22, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 900;
+}
+
+.modal-window {
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.conquista-window {
+  max-width: 460px;
+  animation: popIn 0.2s ease;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.conquista-body {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.conquista-emoji {
+  font-size: 3rem;
+}
+
+.conquista-palmas {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #6b2e43;
+  background: var(--rose-soft);
+  border: 2px solid var(--rose-detail);
+  border-radius: 5px;
+  padding: 4px 10px;
+}
+
+.conquista-titulo {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 1.15rem;
+  color: #365f34;
+}
+
+.conquista-xp {
+  font-family: var(--font-pixel);
+  font-weight: 800;
+  background: #ffe28a;
+  border: 2px solid var(--gold-dark);
+  color: #3d2407;
+  padding: 4px 13px;
+  border-radius: 5px;
+}
+
+.conquista-frase {
+  margin: 4px 0 8px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: #fbf3df;
+  border: 2px dashed #966642;
+  border-radius: 6px;
+  padding: 12px 14px;
+  width: 100%;
+}
+
+.conquista-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.auto-close-bar {
+  width: 100%;
+  height: 5px;
+  background: #dfcda9;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.auto-close-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--leaf);
+  transition: width 0.1s linear;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  border: 3px solid #fff8e7;
+  outline: 2px solid #8a5c3a;
+  cursor: pointer;
+}
+
+.color-swatch.is-selected {
+  outline: 3px solid var(--gold-dark);
+  transform: scale(1.1);
+}
+
+.modal-footer-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.frases-lista {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.frase-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #fbf3df;
+  border: 2px solid #b59164;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.86rem;
+}
+
+/* ============================================================
+   CADERNO COM ABAS LATERAIS (ORGANIZAÇÃO ESTILO LIVRO RPG)
+   ============================================================ */
+.book-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  width: 100%;
+}
+
+.book-frame {
+  flex: 1 1 auto;
+  min-width: 0;
+  background: linear-gradient(180deg, #7f4e2a 0%, #5c3820 100%);
+  border: 4px solid var(--wood-dark);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: inset 0 0 0 2px #b68042, 7px 7px 0 #17231a;
+  position: relative;
+}
+
+.book-pages {
+  background: linear-gradient(
+    90deg,
+    #f6ecd6 0%,
+    #fbf3e0 48.6%,
+    #d6bf95 49.9%,
+    #fbf3e0 51.4%,
+    #f6ecd6 100%
+  );
+  border: 3px solid var(--wood-frame);
+  border-radius: 8px;
+  padding: 14px 16px;
+  min-height: 610px;
+  box-shadow: inset 0 0 0 2px #e4d2ad;
+}
+
+.book-panel[hidden] {
+  display: none !important;
+}
+
+.book-spread {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.book-spread-even {
+  grid-template-columns: 1fr 1fr;
+}
+
+.book-spread-balanced {
+  grid-template-columns: 0.84fr 1.16fr;
+}
+
+.book-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.book-tabs-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 18px;
+  margin-left: -3px;
+  z-index: 6;
+  flex-shrink: 0;
+}
+
+.book-tab-btn {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 112px;
+  padding: 9px 12px;
+  border: 3px solid var(--wood-dark);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--tab-bg, #ecdcb8);
+  box-shadow: 3px 3px 0 #17231a;
+  cursor: pointer;
+  transition: transform 0.12s ease, padding-left 0.12s ease, filter 0.12s ease;
+  text-align: left;
+}
+
+.book-tab-btn:hover {
+  transform: translateX(3px);
+  filter: brightness(1.04);
+}
+
+.book-tab-btn.is-active {
+  padding-left: 18px;
+  transform: translateX(4px);
+  background: var(--tab-active-bg, #ffe39b);
+  box-shadow: inset 0 0 0 2px #fff8e6, 4px 3px 0 #17231a;
+}
+
+.book-tab-ico {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.book-tab-lbl {
+  white-space: nowrap;
+}
+
+.tab-cor-mesa { --tab-bg: #d9e7cc; --tab-active-bg: #b9d9a1; }
+.tab-cor-quests { --tab-bg: #f6d5cb; --tab-active-bg: #f0a792; }
+.tab-cor-diario { --tab-bg: #d9e7ef; --tab-active-bg: #a7cee4; }
+.tab-cor-prazos { --tab-bg: #f5e2ba; --tab-active-bg: #f2c968; }
+.tab-cor-estante { --tab-bg: #e2d8ee; --tab-active-bg: #c6b0e4; }
+.tab-cor-trofeus { --tab-bg: #fae9b8; --tab-active-bg: #f5cd5b; }
+.tab-cor-personagens { --tab-bg: #f5d6e0; --tab-active-bg: #ebadc1; }
+.tab-cor-ajustes { --tab-bg: #dfd7cc; --tab-active-bg: #c5b6a3; }
+
+.panel-scroll-box {
+  max-height: 530px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.tab-side-tip {
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: #efe2c4;
+  border: 1.5px dashed #9a714d;
+  border-radius: 6px;
+}
+
+.missao-form-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.missao-row-tamanhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.missao-row-tamanhos .field-group {
+  flex: 1 1 120px;
+}
+
+.prazo-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.estante-privacidade-box {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: var(--leaf-soft);
+  border: 2px solid var(--leaf-border);
+  border-radius: 8px;
+  font-size: 0.84rem;
+}
+
+.estante-privacidade-box p {
+  margin: 6px 0 0;
+  color: var(--ink);
+}
+
+.personagem-destaque-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f9eed4;
+  border: 2px solid var(--gold-dark);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.personagem-destaque-svg {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  background: #fff9ec;
+  border: 2px solid var(--wood-frame);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.personagem-destaque-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.personagem-destaque-info strong {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: 0.96rem;
+  color: var(--wood-dark);
+  margin-bottom: 4px;
+}
+
+.personagem-destaque-info p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.ajustes-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ajustes-bloco {
+  background: #fbf3df;
+  border: 2px solid #c9b186;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.ajustes-bloco h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-pixel);
+  font-size: 0.9rem;
+  color: var(--wood-dark);
+}
+
+.ajustes-som-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ajustes-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Deixar a Mesa ligeiramente mais compacta para caber inteira no livro sem rolar */
+[data-tab-panel="mesa"] .window-body {
+  padding: 12px 14px;
+}
+
+[data-tab-panel="mesa"] .big-counter-box {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+[data-tab-panel="mesa"] .big-number {
+  font-size: 2.55rem;
+}
+
+[data-tab-panel="mesa"] .progress-section {
+  margin-bottom: 10px;
+}
+
+[data-tab-panel="mesa"] .pomo-timer {
+  font-size: 2.25rem;
+}
+
+/* Animacaozinha discreta ao somar palavras */
+@keyframes numeroSubiuDiscreto {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.09); color: #2d7a36; text-shadow: 0 0 8px #d7f3be; }
+  100% { transform: scale(1); }
+}
+
+.big-number.is-bump,
+.janelinha-palavras-num.is-bump {
+  display: inline-block;
+  animation: numeroSubiuDiscreto 0.45s ease-out;
+}
+
+/* ============================================================
+   JANELINHA COMPACTA (?mini=1): SÓ NPC + POMODORO/TOMATES + PALAVRAS
+   ============================================================ */
+body.is-janelinha {
+  background-image: none;
+  background-color: var(--wood-dark);
+}
+
+body.is-janelinha .topbar,
+body.is-janelinha .book-shell {
+  display: none !important;
+}
+
+body.is-janelinha .container {
+  max-width: 100%;
+  margin: 0;
+  padding: 8px;
+  gap: 0;
+}
+
+.janelinha-compacta {
+  width: 100%;
+  padding: 10px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.janelinha-npc-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  background: #f9eed4;
+  border: 2px solid #966642;
+  border-radius: 8px;
+}
+
+.janelinha-npc-avatar {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  background: #fff9ec;
+  border: 2px solid var(--wood-frame);
+  border-radius: 6px;
+  padding: 3px;
+  cursor: pointer;
+}
+
+.janelinha-npc-avatar svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.janelinha-npc-texto {
+  min-width: 0;
+  flex: 1;
+}
+
+.janelinha-npc-nome {
+  font-family: var(--font-pixel);
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--wood-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.janelinha-npc-fala {
+  margin: 2px 0 0;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.janelinha-pomo-row {
+  padding: 8px 9px;
+  background: #efe2c4;
+  border: 2px solid #966642;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.janelinha-pomo-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.janelinha-pomo-modo {
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 3px 7px;
+  background: #fbf4e2;
+  border: 1.5px solid var(--wood-frame);
+  border-radius: 5px;
+  color: var(--wood-dark);
+}
+
+.janelinha-pomo-timer {
+  font-family: var(--font-pixel);
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.janelinha-pomo-btns {
+  display: flex;
+  gap: 5px;
+}
+
+.janelinha-quest-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1.5px dashed #b5946b;
+  padding-top: 6px;
+}
+
+.janelinha-quest-titulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--wood-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.janelinha-tomatinhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.janelinha-tomatinhos .tomatinho {
+  width: 21px;
+  height: 21px;
+  padding: 1px;
+}
+
+.janelinha-palavras-row {
+  padding: 8px 9px;
+  background: var(--leaf-soft);
+  border: 2px solid var(--leaf-border);
+  border-radius: 8px;
+}
+
+.janelinha-palavras-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.janelinha-palavras-num {
+  font-family: var(--font-pixel);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #2f602c;
+}
+
+.janelinha-palavras-rotulo {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin-left: 3px;
+}
+
+.janelinha-meta-pct {
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--wood-dark);
+}
+
+.janelinha-track {
+  height: 14px;
+}
+
+/* ============================================================
+   RESPONSIVO (TELAS MENORES)
+   ============================================================ */
+@media (max-width: 960px) {
+  .book-shell {
+    flex-direction: column-reverse;
+  }
+
+  .book-tabs-rail {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-top: 0;
+    margin-left: 0;
+    margin-bottom: -3px;
+    padding-left: 10px;
+    gap: 5px;
+  }
+
+  .book-tab-btn {
+    min-width: auto;
+    border: 3px solid var(--wood-dark);
+    border-bottom: none;
+    border-radius: 9px 9px 0 0;
+    padding: 7px 10px;
+  }
+
+  .book-tab-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .book-tab-btn.is-active {
+    padding-left: 10px;
+    padding-bottom: 10px;
+    transform: translateY(-2px);
+  }
+
+  .book-pages {
+    background: var(--parchment);
+    min-height: auto;
+  }
+
+  .book-spread,
+  .book-spread-even,
+  .book-spread-balanced,
+  .placar-grid,
+  .trofeus-dupla-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-scroll-box {
+    max-height: none;
+  }
+
+  .privacy-pill {
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .prazo-form-grid,
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .prazo-form-grid .btn {
+    grid-column: span 1;
+  }
+
+  .pomo-display-row {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .big-number {
+    font-size: 2.5rem;
+  }
+}
+
+
+/* ============================================================
+   NPCS ROMANCE, QUEST 0, MEDALHAS COM DICA, MANUAL E ONBOARDING
+   ============================================================ */
+.mascote-svg-wrap svg,
+.q0-npc-frame svg,
+.personagem-avatar svg,
+.conquista-npc-svg svg,
+.novo-personagem-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Seletor de personagem no Pomodoro */
+.npc-selector-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background: #efe1c1;
+  border: 2px solid #966642;
+  border-radius: 7px;
+}
+
+.npc-selector-row .label-cute {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.input-npc-select {
+  flex: 1 1 200px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Banner Quest 0 */
+.quest-zero-card {
+  margin-bottom: 16px;
+  border-color: var(--gold-dark);
+}
+
+.q0-passo-badge {
+  font-family: var(--font-pixel);
+  font-size: 0.76rem;
+  font-weight: 800;
+  background: #ffe28a;
+  color: #3d2407;
+  border: 2px solid var(--gold-dark);
+  border-radius: 5px;
+  padding: 2px 8px;
+}
+
+.q0-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(180deg, #faf1dc 0%, #f1e3c3 100%);
+}
+
+.q0-npc-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.q0-npc-frame {
+  width: 78px;
+  height: 78px;
+  padding: 4px;
+  background: #fff9ec;
+  border: 2px solid var(--wood-frame);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 #c9ae82;
+}
+
+.q0-npc-tag {
+  font-family: var(--font-pixel);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #462a17;
+  background: #f5dce3;
+  border: 1.5px solid var(--rose-detail);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+.q0-content-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.q0-titulo {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  color: #365f34;
+}
+
+.q0-texto {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.q0-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Dicas em medalhas bloqueadas */
+.medalha-dica {
+  margin-top: 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #4f3a25;
+}
+
+.medalha-unlock-tag {
+  margin-top: 3px;
+  font-family: var(--font-pixel);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #7c354c;
+}
+
+/* Álbum de Personagens */
+.personagens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.personagem-card {
+  background: #fff7df;
+  border: 2px solid #966642;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 2px 2px 0 #cdb183;
+}
+
+.personagem-card.is-ativo {
+  border-color: var(--leaf);
+  background: #eef6e7;
+  box-shadow: 2px 2px 0 #95b88c;
+}
+
+.personagem-card.is-bloqueada {
+  background: #d8ccb3;
+  border-color: #7d6b4f;
+  box-shadow: none;
+  opacity: 0.85;
+}
+
+.personagem-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.personagem-avatar {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  background: #fbf3df;
+  border: 2px solid var(--wood-frame);
+  border-radius: 7px;
+  padding: 3px;
+}
+
+.personagem-card.is-bloqueada .personagem-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: #c5b69a;
+}
+
+.personagem-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.personagem-nome {
+  font-family: var(--font-pixel);
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.personagem-arq {
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
+.personagem-dica {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #5e442c;
+}
+
+.personagem-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: auto;
+}
+
+/* Cartinha lacrada & revelação de personagem no Modal de Conquista */
+.wax-seal-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fff6f2;
+  background: #9f333c;
+  border: 2px solid #5f181f;
+  border-radius: 999px;
+  padding: 4px 12px;
+  box-shadow: 0 2px 0 #5f181f;
+}
+
+.conquista-npc-box {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: #efe1c1;
+  border: 2px solid #966642;
+  border-radius: 7px;
+  padding: 8px 10px;
+}
+
+.conquista-npc-svg {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  background: #fff9ec;
+  border: 2px solid var(--wood-frame);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.conquista-npc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.conquista-npc-nome {
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  color: #462a17;
+}
+
+.conquista-npc-fala {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.novo-personagem-card {
+  width: 100%;
+  text-align: left;
+  background: linear-gradient(180deg, #fae8ed 0%, #f5dce3 100%);
+  border: 2px solid var(--rose-detail);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.novo-personagem-tag {
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #6b2e43;
+}
+
+.novo-personagem-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.novo-personagem-svg {
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  background: #fffaf2;
+  border: 2px solid var(--rose-detail);
+  border-radius: 7px;
+  padding: 2px;
+}
+
+.novo-personagem-info {
+  flex: 1 1 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.novo-personagem-info strong {
+  font-family: var(--font-pixel);
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+
+.novo-personagem-info span {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+/* Modais largos: Onboarding + Manual */
+.modal-window-wide {
+  max-width: 600px;
+}
+
+.onboarding-intro {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.onb-fieldset {
+  border: 2px solid #966642;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #efe1c1;
+  margin: 0;
+}
+
+.onb-fieldset legend {
+  padding: 0 6px;
+}
+
+.onb-pref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.onb-pref-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px;
+  background: #fbf5e7;
+  border: 2px solid #966642;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.onb-pref-card:has(input:checked) {
+  background: #e5f0dd;
+  border-color: var(--leaf);
+}
+
+.onb-pref-card span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onb-pref-card strong {
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+
+.onb-pref-card small {
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
+.manual-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manual-bloco {
+  background: #fbf3df;
+  border: 2px solid #8a5c3a;
+  border-radius: 7px;
+  padding: 10px 12px;
+}
+
+.manual-bloco strong {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: 0.86rem;
+  color: #365f34;
+  margin-bottom: 4px;
+}
+
+.manual-bloco p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.manual-footer {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 680px) {
+  .q0-body {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .q0-actions {
+    justify-content: center;
+  }
+
+  .form-row-2,
+  .onb-pref-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   CONTADOR AUTOMÁTICO LOCAL (FASE 3)
+   ============================================================ */
+/* Controles de som na barra superior */
+.sound-control-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #f3e6ca 0%, #e4cfa4 100%);
+  border: 2px solid var(--wood-frame);
+  border-radius: 6px;
+  padding: 2px 8px 2px 2px;
+  box-shadow: 2px 2px 0 var(--wood-dark);
+}
+
+.sound-control-group.is-muted {
+  background: linear-gradient(180deg, #dfd4bd 0%, #cec0a5 100%);
+  opacity: 0.92;
+}
+
+.btn-sound-toggle {
+  border: none;
+  box-shadow: none;
+  padding: 6px 9px;
+  background: transparent;
+}
+
+.btn-sound-toggle:hover,
+.btn-sound-toggle:active {
+  transform: none;
+  box-shadow: none;
+  background: rgba(92, 56, 32, 0.08);
+}
+
+.volume-slider {
+  width: 78px;
+  accent-color: var(--gold);
+  cursor: pointer;
+  margin: 0;
+}
+
+.volume-pct {
+  font-family: var(--font-pixel);
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--ink);
+  min-width: 34px;
+  text-align: right;
+}
+
+.mini-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Festa épica de Quest Concluída ("você praticamente matou um dragão") */
+.dragon-slayer-banner {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-pixel);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #3d2105;
+  background: linear-gradient(180deg, #ffe694 0%, #dfa12c 100%);
+  border: 2px solid #6e4408;
+  border-radius: 8px;
+  padding: 6px 12px;
+  box-shadow: 0 2px 0 #6e4408;
+  animation: dragonPulse 1.15s ease-in-out infinite;
+}
+
+.conquista-window.is-dragon-festa {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px #f2c968, 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.mascote-inline.is-dragon-festa {
+  border-color: var(--gold-dark);
+  box-shadow: 0 0 0 2px var(--gold-bright), 3px 3px 0 #7b532f;
+  animation: dragonPartyBounce 0.75s ease-in-out 3;
+}
+
+@keyframes dragonPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+
+@keyframes dragonPartyBounce {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-5px); }
+}
+
+.contador-auto-bar {
+  margin-bottom: 12px;
+  padding: 9px 11px;
+  background: #efe1c1;
+  border: 2px solid #966642;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contador-auto-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.contador-auto-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1.5px solid var(--wood-dark);
+}
+
+.contador-auto-dot.is-offline {
+  background: #b5a184;
+}
+
+.contador-auto-dot.is-online {
+  background: #4caf50;
+  box-shadow: 0 0 0 3px #cde8ca;
+}
+
+.contador-auto-status {
+  flex: 1 1 210px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.contador-auto-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.contador-auto-ajuda-box {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink);
+  background: #fbf5e7;
+  border: 1.5px dashed #8a5c3a;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+/* Modal compacto dentro da Janelinha (320x360) */
+body.is-janelinha .modal-backdrop {
+  padding: 8px;
+}
+
+body.is-janelinha .modal-window {
+  width: 100%;
+  max-width: 100%;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+}
+
+body.is-janelinha .conquista-body {
+  padding: 12px 10px;
+  gap: 8px;
+}
+
+body.is-janelinha .conquista-emoji {
+  font-size: 2.1rem;
+}
+
+body.is-janelinha .conquista-titulo {
+  font-size: 0.96rem;
+}
+
+/* Corrigir contagem de hoje */
+.corrigir-hoje-row {
+  margin-top: 6px;
+}
+
+.btn-link-discreto {
+  background: transparent;
+  border: none;
+  padding: 2px 6px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-link-discreto:hover {
+  color: var(--ink);
+  background: rgba(150, 102, 66, 0.1);
+}
+
+.corrigir-window {
+  max-width: 440px;
+}
+
+.corrigir-opcoes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.corrigir-opcao-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+}
+
+.corrigir-opcao-titulo {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.corrigir-opcao-desc {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.corrigir-ajustar-box {
+  background: #fbf3df;
+  border: 2px solid #c9a77d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.corrigir-confirm-box {
+  margin-top: 10px;
+  background: #fbf3df;
+  border: 2px solid #966642;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.corrigir-confirm-fala {
+  margin: 0 0 6px;
+  font-weight: 800;
+  color: var(--ink);
+  font-size: 0.94rem;
+}
+
+/* Pergunta automática de salto grande */
+.salto-aviso-box {
+  margin-top: 4px;
+  padding: 9px 11px;
+  background: #fff7df;
+  border: 2px solid #c98a3b;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-shadow: 0 2px 0 rgba(120, 74, 24, 0.14);
+}
+
+.salto-aviso-box[hidden] {
+  display: none;
+}
+
+.salto-aviso-texto {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.35;
+}
+
+.salto-aviso-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-tiny {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.salto-aviso-mini {
+  padding: 7px 9px;
+  gap: 5px;
+}
+
+.salto-aviso-mini .salto-aviso-texto {
+  font-size: 0.74rem;
+}
+
+/* Dia Misto: revisão compacta embaixo das palavras + Pular pausa */
+.misto-revisao-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #f5ead1;
+  border: 2px solid #966642;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.misto-revisao-box[hidden] {
+  display: none;
+}
+
+.misto-revisao-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.misto-revisao-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.misto-revisao-titulo {
+  font-size: 0.84rem;
+  color: var(--ink);
+}
+
+.misto-revisao-num {
+  font-family: var(--font-pixel);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #3b6938;
+}
+
+.misto-revisao-meta {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.misto-revisao-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pomo-pronto-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: #e6f2df;
+  border: 1.5px solid #4d7c48;
+  border-radius: 6px;
+  color: #2f572c;
+}
+
+.pomo-pronto-badge[hidden],
+.janelinha-pular-row[hidden],
+.janelinha-misto-rev[hidden] {
+  display: none;
+}
+
+.janelinha-pular-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.janelinha-misto-rev {
+  margin-top: 4px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+/* Onde você escreve (Ajustes) */
+.ajustes-editores-box {
+  margin: 8px 0 10px;
+  padding: 9px 10px;
+  background: #f5ead1;
+  border: 1.5px solid #966642;
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.editores-check-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.editor-chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  background: #fbf5e7;
+  border: 1.5px solid #966642;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.editor-chip-check:has(input:checked) {
+  background: #e3f0dc;
+  border-color: #4d7c48;
+  color: #264a23;
+}
+
+/* Player de som ambiente no Relógio da Fazenda e na Janelinha */
+.ambiente-player-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  background: #efe2c4;
+  border: 1.5px solid #966642;
+  border-radius: 7px;
+}
+
+.ambiente-rotulo {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.input-ambiente-select {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  min-width: 145px;
+  flex: 1 1 145px;
+}
+
+.ambiente-vol-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ambiente-slider {
+  width: 72px;
+}
+
+.ambiente-vol-pct {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--ink-soft);
+  min-width: 32px;
+  text-align: right;
+}
+
+#btn-ambiente-toggle.is-playing,
+#mini-ambiente-toggle.is-playing {
+  background: #4e7d54;
+  color: #fff9e6;
+  border-color: #2f572c;
+}
+
+/* Minijogos na pausa */
+.minijogos-window {
+  max-width: 520px;
+}
+
+.minijogos-body {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.minijogos-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.minijogos-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.minijogos-tabs .btn.is-active {
+  background: var(--leaf);
+  color: #fff9e6;
+  border-color: var(--leaf-dark);
+}
+
+.minijogos-pausa-pill {
+  font-family: var(--font-pixel);
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  background: #fbf3df;
+  border: 1.5px solid #966642;
+  border-radius: 6px;
+  color: var(--ink);
+}
+
+.minijogos-placar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #efe2c4;
+  border: 1.5px solid #966642;
+  border-radius: 6px;
+  font-family: var(--font-pixel);
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.minijogo-canvas-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #3b2a1e;
+  border: 3px solid #7c5132;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+#minijogo-canvas {
+  background: #f6ebd1;
+  border: 2px solid #966642;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  cursor: pointer;
+  max-width: 100%;
+  touch-action: manipulation;
+}
+
+.minijogo-status {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+}
+
+.minijogo-controles-touch {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
