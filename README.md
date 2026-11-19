@@ -37,7 +37,7 @@ Feita por [Raquel Figueiredo](https://raquelverso.com.br), autora de romances. B
 
 **Usa Google Docs?** A contagem automática não funciona com ele, porque o Docs mora na internet e a Central, de propósito, não. É só digitar o total no fim da sessão.
 
-> A IA ajudou só a montar o código desta Central. Nenhum livro da autora foi escrito por IA, e a Central nem lê o seu texto.
+> A IA ajudou só a montar o código desta Central.
 
 ## Como instalar
 
