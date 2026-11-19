@@ -6,7 +6,7 @@ Uma fazendinha cozy pra quem escreve livros. Contador de palavras automático, p
 
 ![Central de Livrinhos](imagens/capa.png)
 
-Feita por [Raquel Figueiredo](https://raquelverso.com.br), autora de romances. Baixe a versão mais nova pelo site: **[raquelverso.com.br](https://raquelverso.com.br)**
+Feita por [Raquel Figueiredo](https://raquelverso.com.br), autora de romances. Baixe a versão mais nova pelo site **[raquelverso.com.br](https://raquelverso.com.br)** ou direto aqui: [Windows](downloads/Central-de-Livrinhos-Windows.zip) · [Mac](downloads/Central-de-Livrinhos-Mac.zip)
 
 ---
 
