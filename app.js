@@ -5353,7 +5353,7 @@
 
   function atualizarContagemColada() {
     const n = contarPalavrasTexto(textareaColar.value);
-    textoContagemColada.textContent = `Texto colado tem ${formatarNumero(n)} palavras (nenhum texto é salvo!)`;
+    textoContagemColada.textContent = `Texto colado tem ${formatarNumero(n)} palavras`;
   }
   textareaColar.addEventListener("input", atualizarContagemColada);
 
