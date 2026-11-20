@@ -6,7 +6,7 @@ Uma fazendinha cozy pra quem escreve livros. Contador de palavras automático, p
 
 ![Central de Livrinhos](imagens/capa.png)
 
-Feita por [Raquel Figueiredo](https://raquelverso.com.br), autora de romances. Baixe a versão mais nova pelo site **[raquelverso.com.br](https://raquelverso.com.br)** ou direto aqui: [Windows](downloads/Central-de-Livrinhos-Windows.zip) · [Mac](downloads/Central-de-Livrinhos-Mac.zip)
+Feita por [Raquel Figueiredo](https://raquelverso.com.br), autora de romances. Baixe a versão mais nova pelo site **[raquelverso.com.br](https://raquelverso.com.br)** ou direto aqui: [Mac](downloads/Central-de-Livrinhos-Mac.zip) · Windows: chegando em breve 🍅
 
 ---
 
@@ -41,7 +41,7 @@ Feita por [Raquel Figueiredo](https://raquelverso.com.br), autora de romances. B
 
 ## Como instalar
 
-**Windows:** baixe o pacote do Windows no site, descompacte e dê dois cliques em `Instalar Central de Livrinhos (Windows).bat`. Se aparecer a tela azul "O Windows protegeu o computador", clique em **Mais informações** e depois em **Executar assim mesmo**. Isso aparece porque a Central é feita por uma pessoa, não por uma empresa com certificado pago.
+**Windows (chegando em breve):** baixe o pacote do Windows no site, descompacte e dê dois cliques em `Instalar Central de Livrinhos (Windows).bat`. Se aparecer a tela azul "O Windows protegeu o computador", clique em **Mais informações** e depois em **Executar assim mesmo**. Isso aparece porque a Central é feita por uma pessoa, não por uma empresa com certificado pago.
 
 **Mac:** baixe o pacote do Mac no site, descompacte e arraste a `Central de Livrinhos.app` pra pasta Aplicativos. Na primeira vez, se o Mac disser que não pode verificar o app, abra **Ajustes do Sistema → Privacidade e Segurança** e clique em **Abrir Mesmo Assim**.
 
